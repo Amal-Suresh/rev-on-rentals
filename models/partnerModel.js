@@ -37,7 +37,13 @@ const Partner =mongoose.Schema({
     companyName:{
         type:String        
     },
-    idProof:{
+    aadhaar:{
+        type:String,
+    },
+    pan:{
+        type:String,
+    },
+    gstNo:{
         type:String,
     }
 

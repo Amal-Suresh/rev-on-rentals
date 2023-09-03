@@ -39,24 +39,31 @@ const receivePartner =async(req,res)=>{
 
 const verifyLogin=async(req,res)=>{
  try { 
-    const partnerData = await Partner.findOne({email:req.body.email})
+    const partnerData = await Partner.findOne({ email: req.body.email })
     if(partnerData){
-        const checkPass=comparePassword(req.body.password, partnerData.password)
-        if(checkPass){
-            const token =jwt.sign({id:partnerData._id},process.env.PARTNER_JWT_SECRET_KEY,{expiresIn:'1d'})
-            const partnerDetails ={
-                username:`${partnerData.fname} ${partnerData.lname}`,
-                token
+        if(partnerData.status){
+            const camparePass =comparePassword(req.body.password,partnerData.password)
+            if (camparePass) {
+                const token =jwt.sign({id:partnerData._id,role:"partner"},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
+                const partnerDetails ={
+                    username:`${partnerData.fname} ${partnerData.lname}`,
+                    token:token
+                }
+                console.log("success");
+                res.status(200).send({ success:true, message: "login successfull" ,data:partnerDetails})
+            } else {
+                res.status(200).send({ success:false, message: "invalid username or password" })
             }
-            console.log(token,"mill gaye token");
-            res.status(200).send({success:true,message:"login successfull", partnerDetails})
+
         }else{
-            res.status(200).send({success:false,message:"email and password are incorrect"})
+            res.status(200).send({success:false, message: "you were blocked by admin" })
         }
+   
     }else{
-        res.status(200).send({success:false,message:"email not existing"})
-    }  
+        res.status(200).send({ success:false, message: "invalid username or password" })
+    } 
  } catch (error) {
+    console.log(error.message);
     res.status(401).send({success:false,message:"something went wrong"})    
  }
 }
@@ -201,6 +208,80 @@ const verifyForgotOtp =async(req,res)=>{
         res.status(401).send({ success:false, message: "something went Wrong"})
     }
 }
+
+const partnerProfile=async(req,res)=>{
+    try {
+        const partnerId = req.id
+        const partnerDetails=await Partner.findOne({_id:partnerId})
+        res.status(200).send({success:true,message:"data fetched successfully",data:partnerDetails})
+       } catch (error) {
+        res.status(401).send({success:false,message:"something went wrong"})
+       }
+}
+
+const editPartnerProfile =async(req,res)=>{
+    try {
+        const {fname,lname,mobile,city,gstNo}=req.body
+        const partnerDetails =await Partner.findOne({_id:req.id})
+        if(req.file){
+            const result = await cloudinary.uploader.upload(req.file.path,{folder:"partnerProfile"})
+            partnerDetails.image=result.secure_url
+        }
+        partnerDetails.fname=fname
+        partnerDetails.lname=lname
+        partnerDetails.mobile=mobile
+        partnerDetails.gstNo=gstNo
+        partnerDetails.city=city
+        await partnerDetails.save()
+        res.status(200).send({success:true,message:"profile updated successfully",data:partnerDetails})
+        } catch (error) {
+            res.status(401).send({success:false,message:"something went wrong"})   
+        }     
+}
+
+const uploadToCloudinary = async (fileBuffer) => {
+    try {
+      const result = await cloudinary.uploader.upload(fileBuffer,{folder:"partnerProof"});
+      return result.secure_url;
+    } catch (error) {
+      console.error('Error uploading image to Cloudinary:', error);
+      throw error;
+    }
+  };
+
+
+  const acceptProof =async(req,res)=>{
+    try {
+        const partnerDetails =await Partner.findOne({_id:req.id})
+        const { aadhaar, pan } = req.files;
+        const aadhaarImageUrl = await uploadToCloudinary(aadhaar[0].path);
+        const panImageUrl = await uploadToCloudinary(pan[0].path);
+        partnerDetails.aadhaar=aadhaarImageUrl
+        partnerDetails.pan=panImageUrl
+        await partnerDetails.save()
+        console.log("done");
+        res.status(200).send({success:true,message:"proof updated successfully",data:partnerDetails})
+    } catch (error) {
+        res.status(400).send({success:false,message:'something went wrong'})    
+    }
+}
+
+const uploadLocationPoints=async(req,res)=>{
+    try {
+    const partnerData =await Partner.findOne({_id:req.id})
+    if(!partnerData){
+        return res.status(200).send({success:false,message:"something went wrong"})
+    }else{
+        partnerData.locations.push({name:req.body.pointName})
+        await partnerData.save()
+        console.log("successsdfc");
+        res.status(200).send({success:true,message:"point added successfully",data:partnerData})
+    }
+    } catch (error) {
+        res.status(401).send({success:false,message:"something went wrong"})   
+    }
+}
+
 module.exports={
     receivePartner,
     verifyLogin,
@@ -208,5 +289,10 @@ module.exports={
     viewBikes,
     changeStatus,
     forgotPass,
-    verifyForgotOtp
+    verifyForgotOtp,
+    partnerProfile,
+    editPartnerProfile,
+    acceptProof,
+    uploadLocationPoints
+
 }

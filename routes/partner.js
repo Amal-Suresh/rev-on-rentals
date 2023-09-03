@@ -33,6 +33,11 @@ partnerRoute.get('/viewBikes',Auth.partnerAuth,partnerController.viewBikes)
 partnerRoute.get('/changeStatus',Auth.partnerAuth,partnerController.changeStatus)
 partnerRoute.post('/forgetpassword',partnerController.forgotPass)
 partnerRoute.post('/verifyForgotOtp',partnerController.verifyForgotOtp)
+partnerRoute.post('/partnerProfile',Auth.partnerAuth,partnerController.partnerProfile)
+partnerRoute.post('/editPartnerProfile',upload.single('image'),Auth.partnerAuth,partnerController.editPartnerProfile)
+partnerRoute.post('/uploadProof',Auth.partnerAuth,upload.fields([{ name: 'aadhaar' }, { name: 'pan' }]),partnerController.acceptProof)
+partnerRoute.post('/uploadLocationPoints',Auth.partnerAuth,partnerController.uploadLocationPoints)
+
 
 
 

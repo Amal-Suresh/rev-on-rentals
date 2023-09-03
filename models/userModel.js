@@ -17,6 +17,9 @@ const User =mongoose.Schema({
         type:String,
         required:true
     },
+     mobile:{
+        type:Number,
+    },
     image:{
         type:String
     },
@@ -24,9 +27,25 @@ const User =mongoose.Schema({
         type:Boolean,
         default:true
     },
-    idProof:{
+    licenseFrontSide:{
         type:String,
+    },
+    licenseBackSide:{
+        type:String,
+    },
+    wallet:{
+        type:Number
+    },
+    walletHistory:{
+        type:[{
+            tdate:{type:Date},
+            amount:{type:Number},
+            tType:{type:String}
+        }]
+    },
+    isVerified:{
+        type:Boolean,
+        default:false
     }
-
 })
 module.exports = mongoose.model("user",User)

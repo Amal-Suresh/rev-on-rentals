@@ -25,7 +25,7 @@ app.use(express.json())
 //   allowedHeaders: ["Content-Type", "Access-Control-Allow-Headers"]
 // }))
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow requests from this origin
+  origin: 'http://localhost:3000',  
   methods: ['GET', 'POST'], // Allow specific HTTP methods
   credentials: true, // Allow cookies and authentication headers
 }));
