@@ -3,6 +3,7 @@ const User = require('../models/userModel')
 const Bike = require('../models/bikeModel')
 const bcrypt = require('bcryptjs');
 const jwt    =require('jsonwebtoken')
+const Partner = require('../models/partnerModel')
 const cloudinary =require('../utils/cloudinery')
 
 const hashPassword = (password)=>{
@@ -172,7 +173,7 @@ const getBikes = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
-        console.log(bikes, "kkkkkk");
+
 
         const datas = {
             bikes,
@@ -291,6 +292,18 @@ const acceptProof =async(req,res)=>{
 }
 
 
+const findCities = async(req,res)=>{
+    try {
+        const cities = await Partner.distinct('city').exec();
+       
+            res.status(200).send({success:true,message:"cities featched",data:cities})
+        
+    } catch (error) {
+        res.status(401).send({success:false,message:"something went wrong"})    
+    }
+}
+
+
 module.exports = {
     verifyOTP,
     verifyLogin,
@@ -299,5 +312,6 @@ module.exports = {
     checkIfUser,
     userProfile,
     editUserProfile,
-    acceptProof
+    acceptProof,
+    findCities
 };

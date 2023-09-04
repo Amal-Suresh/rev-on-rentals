@@ -1,0 +1,73 @@
+const mongoose = require('mongoose')
+
+const Booking =mongoose.Schema({
+    user:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+    },
+    bike:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Bike",
+        required:true
+    },
+    partner:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Partner",
+        required:true
+    },
+    pickUpTime:{
+        type:String,
+        required:true
+    },
+    pickUpDate:{
+        type:Date,
+        required:true
+    },
+    dropTime:{
+        type:String,
+        required:true
+    },
+    dropDate:{
+        type:Date,
+        required:true
+    },
+    receviedTime:{
+        type:String,
+        required:true
+    },
+    receviedDate:{
+        type:Date,
+        required:true
+    },
+    pickUpPoint:{
+        type:String,
+        required:true
+    },
+    dropPoint:{
+        type:String,
+        required:true
+    },
+    city:{
+        type:String,
+        required:true
+    },
+    paymentMethod:{
+        type:String,
+        required:true
+    },
+    paymentStatus:{
+        type:String,
+        required:true
+    },
+    totalAmount:{
+        type:Number,
+        required:true
+    },
+    discountAmount:{
+        type:Number,
+        required:true
+    }
+
+})
+module.exports = mongoose.model("booking",Booking)

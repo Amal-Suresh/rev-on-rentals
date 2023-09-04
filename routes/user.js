@@ -34,6 +34,7 @@ userRoute.post('checkToken',userController.checkIfUser)
 userRoute.post('/userProfile',auth.userAuth,userController.userProfile)
 userRoute.post('/editUserProfile',upload.single('image'),auth.userAuth,userController.editUserProfile)
 userRoute.post('/uploadProof',auth.userAuth,upload.fields([{ name: 'licenseFrontSide' }, { name: 'licenseBackSide' }]),userController.acceptProof)
+userRoute.get('/retriveCities',userController.findCities)
 
 
 module.exports=userRoute;
