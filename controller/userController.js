@@ -1,6 +1,7 @@
 const nodemailer = require('nodemailer')
 const User = require('../models/userModel')
 const Bike = require('../models/bikeModel')
+const Booking =require('../models/bookingModel')
 const bcrypt = require('bcryptjs');
 const jwt    =require('jsonwebtoken')
 const Partner = require('../models/partnerModel')
@@ -126,68 +127,7 @@ const verifyLogin = async (req, res) => {
     }
 }
 
-const getBikes = async (req, res) => {
-    try {
-        console.log("reached user getBikes");
-        // const page = parseInt(req.query.page)-1 || 0
-        // const limit = parseInt(req.query.limit) || 5
-        // const search = req.query.search || ""
-        // const sort = req.query.sort || ""
-        // let category = req.query.category || "All"
 
-        const page = parseInt(req.query.page) || 1;
-        const sort = req.query.sort || 'default';
-        const filterCat = req.query.category || '';
-        const search = req.query.search || '';
-
-        const limit = 6; // Number of items per page
-        const skip = (page - 1) * limit;
-
-        let query = {};
-
-        // Apply category filter
-        if (filterCat) {
-            query.category = filterCat;
-        }
-
-        // Apply search filter
-        if (search) {
-            query.name = { $regex: search, $options: 'i' };
-        }
-
-
-        let sortOptions = {};
-
-        // Apply sorting
-        if (sort === 'lowToHigh') {
-            sortOptions.rentPerHour = 1;
-        } else if (sort === 'highToLow') {
-            sortOptions.rentPerHour = -1;
-        }
-
-        const totalItems = await Bike.countDocuments(query);
-        const totalPages = Math.ceil(totalItems / limit);
-
-        const bikes = await Bike.find(query)
-            .sort(sortOptions)
-            .skip(skip)
-            .limit(limit);
-
-
-
-        const datas = {
-            bikes,
-            totalPages,
-            page
-        }
-
-        res.status(200).send({ message: "data fetched successfully", success: true, data: datas })
-
-    } catch (error) {
-        console.log(error);
-
-    }
-}
 
 const checkEmail = async (req, res) => {
     try {
@@ -235,6 +175,8 @@ const userProfile=async(req,res)=>{
    try {
     const userId = req.id
     const userDetails=await User.findOne({_id:userId})
+
+
     res.status(200).send({success:true,message:"data fetched successfully",data:userDetails})
    } catch (error) {
     res.status(401).send({success:false,message:"something went wrong"})
@@ -304,6 +246,189 @@ const findCities = async(req,res)=>{
 }
 
 
+
+
+const getBikes = async (req, res) => {
+    try {
+        console.log("reached user getBikes")
+        console.log(req.query);
+
+        const page = parseInt(req.query.page) || 1;
+        const sort = req.query.sort || 'default';
+        const filterCat = req.query.category || '';
+        const search = req.query.search || '';
+
+        const limit = 8;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+        if (filterCat) {
+            query.category = filterCat;
+        }
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
+        let sortOptions = {};
+        if (sort === 'lowToHigh') {
+            sortOptions.rentPerHour = 1;
+        } else if (sort === 'highToLow') {
+            sortOptions.rentPerHour = -1;
+        }
+
+        const totalItems = await Bike.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        const bikes = await Bike.find(query)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(limit);
+
+        const datas = {
+            bikes,
+            totalPages,
+            page
+        }
+
+        res.status(200).send({ message: "data fetched successfully", success: true, data: datas })
+
+    } catch (error) {
+        console.log(error);
+
+    }
+}
+
+
+
+
+
+const getBikes2 = async (req, res) => {
+    try {
+        console.log("reached user getBikes");
+        console.log(req.query);
+
+        const page = parseInt(req.query.page) || 1;
+        const sort = req.query.sort || 'default';
+        const filterCat = req.query.category || '';
+        const search = req.query.search || '';
+        const city = req.query.city || '';
+        const pickUpDate = req.query.pickUpDate || '';
+        const pickUpTime = req.query.pickUpTime || '';
+        const dropDate = req.query.dropDate || '';
+        const dropTime = req.query.dropTime || '';
+
+        const limit = 8;
+        const skip = (page - 1) * limit;
+
+        let query = {};
+
+        if (filterCat) {
+            query.category = filterCat;
+        }
+        if (search) {
+            query.name = { $regex: search, $options: 'i' };
+        }
+
+        let sortOptions = {};
+
+        if (sort === 'lowToHigh') {
+            sortOptions.rentPerHour = 1;
+        } else if (sort === 'highToLow') {
+            sortOptions.rentPerHour = -1;
+        }
+
+        // New filter criteria for availability
+        if (city && pickUpDate && pickUpTime && dropDate && dropTime) {
+            // Find partners in the specified city
+            const partnersInCity = await Partner.find({ city });
+
+          
+
+            // Get partner IDs in the city
+            const partnerIds = partnersInCity.map(partner => partner._id);
+            console.log(partnerIds,"idddds");
+
+            // Check for overlapping bookings
+            const overlappingBookings = await Booking.find({
+                partner: { $in: partnerIds },
+                bike: { $ne: null }, // Exclude bookings with no bike assigned
+                $or: [
+                    {
+                        $and: [
+                            { pickUpDate: { $lte: dropDate } },
+                            { dropDate: { $gte: pickUpDate } },
+                            {
+                                $or: [
+                                    { $and: [{ pickUpTime: { $lte: dropTime } }, { dropTime: { $gte: pickUpTime } }] },
+                                    { $and: [{ pickUpTime: { $lte: dropTime } }, { dropTime: { $gte: pickUpTime } }] },
+                                    { $and: [{ pickUpTime: { $gte: pickUpTime } }, { dropTime: { $lte: dropTime } }] },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            });
+
+            console.log(overlappingBookings,"orderderdsss");
+
+            // Filter out bikes that have overlapping bookings
+            const bookedBikeIds = overlappingBookings.map(booking => booking.bike);
+            query._id = { $nin: bookedBikeIds };
+        }
+
+        console.log(query,"jbdskjbvfvkfbvkhds");
+
+        const totalItems = await Bike.countDocuments(query);
+        const totalPages = Math.ceil(totalItems / limit);
+
+        const bikes = await Bike.find(query)
+            .sort(sortOptions)
+            .skip(skip)
+            .limit(limit);
+
+        const datas = {
+            bikes,
+            totalPages,
+            page,
+        };
+        console.log(bikes);
+
+        res.status(200).send({ message: "data fetched successfully", success: true, data: datas });
+
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({ message: "Internal server error", success: false });
+    }
+}
+
+
+const getBookings =async(req,res)=>{
+    try {
+        
+        const rides = await Booking.find({ user: req.id }).populate('bike');
+        console.log(rides);
+
+        res.status(200).send({success:true,message:"data featched successfully",data:rides})
+    } catch (error) {
+        console.log(error.message);
+        res.status(401).send({success:false,message:"something went wrong"})  
+    }
+}
+
+const cancelRide =async(req,res)=>{
+    try {
+        console.log(req.body);
+        const ride = await Booking.findOne({ _id: req.body.order })
+        ride.status="cancelled"
+        await ride.save()
+        console.log(ride);
+        res.status(200).send({success:true,message:"ride cancelled"})
+    } catch (error) {
+        console.log(error.message);
+        res.status(401).send({success:false,message:"something went wrong"})  
+    }
+}
+
 module.exports = {
     verifyOTP,
     verifyLogin,
@@ -313,5 +438,8 @@ module.exports = {
     userProfile,
     editUserProfile,
     acceptProof,
-    findCities
+    findCities,
+    getBikes2,
+    getBookings,
+    cancelRide
 };

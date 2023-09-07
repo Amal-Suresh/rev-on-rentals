@@ -1,5 +1,5 @@
 const mongoose = require('mongoose')
-const Bike =mongoose.Schema({
+const bikeSchema =mongoose.Schema({
     name:{
         type:String,
         required:true
@@ -44,4 +44,4 @@ const Bike =mongoose.Schema({
     }
 
 })
-module.exports = mongoose.model("bike",Bike)
+module.exports = mongoose.model("bike",bikeSchema)

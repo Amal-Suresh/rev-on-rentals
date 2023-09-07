@@ -1,9 +1,11 @@
 const Partner = require('../models/partnerModel')
+const Booking = require('../models/bookingModel')
 const bcrypt = require('bcryptjs');
 const cloudinary =require('../utils/cloudinery')
 const jwt = require('jsonwebtoken')
 const Bike = require('../models/bikeModel')
 const nodemailer = require('nodemailer')
+
 
 const hashPassword = (password)=>{
     const salt = bcrypt.genSaltSync(10);
@@ -44,7 +46,7 @@ const verifyLogin=async(req,res)=>{
         if(partnerData.status){
             const camparePass =comparePassword(req.body.password,partnerData.password)
             if (camparePass) {
-                const token =jwt.sign({id:partnerData._id,role:"partner"},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
+                const token =jwt.sign({id:partnerData._id,role:"partner",username:`${partnerData.fname} ${partnerData.lname}`},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
                 const partnerDetails ={
                     username:`${partnerData.fname} ${partnerData.lname}`,
                     token:token
@@ -70,6 +72,7 @@ const verifyLogin=async(req,res)=>{
 
 const addBikes = async(req,res)=>{
  try {
+    
     const result = await cloudinary.uploader.upload(req.file.path,{folder:"bikeImages"})
     const{name, brand, category, engineCC, makeYear, rentPerHour, plateNumber}=req.body
     const bikeDetails = new Bike({
@@ -86,6 +89,7 @@ const addBikes = async(req,res)=>{
     await bikeDetails.save()
     res.status(200).json({success:true, message:"bike added successfully"})
  } catch (error) {
+    console.log(error.message);
    res.status(401).send({success:false, message:"something went wrong"})
  }
 }
@@ -274,13 +278,50 @@ const uploadLocationPoints=async(req,res)=>{
     }else{
         partnerData.locations.push({name:req.body.pointName})
         await partnerData.save()
-        console.log("successsdfc");
         res.status(200).send({success:true,message:"point added successfully",data:partnerData})
     }
     } catch (error) {
         res.status(401).send({success:false,message:"something went wrong"})   
     }
 }
+
+const checkIfPartner =async(req,res)=>{
+   try {
+    const tokenWithBearer = req.headers['authorization'];
+    const token=tokenWithBearer.split(" ")[1]
+    jwt.verify(token,process.env.JWT_SECRET_KEY,(err,encoded)=>{
+        if(err){
+            return res.status(401).send({message:"Auth failed",success:false})
+        }else if (encoded.role === 'partner') {
+         let  partner ={
+            token:token,
+            username:encoded.username
+         }
+         res.status(200).send({success:true,message:"Auth success",data:partner})
+    }
+    })
+    
+   } catch (error) {
+    console.log(error.message);
+    res.status(401).send({message:"some thing went wrong",success:false})
+
+    
+   }
+}
+
+const findBookings=async(req,res)=>{
+    try {
+        console.log(req.id ,"lllll");
+        const rides = await Booking.find({ partner: req.id }).populate('bike').populate('user');
+        console.log(rides);
+
+        res.status(200).send({success:true,message:"data featched successfully",data:rides})
+    } catch (error) {
+        console.log(error.message);
+        res.status(401).send({success:false,message:"something went wrong"})  
+    }
+}
+
 
 module.exports={
     receivePartner,
@@ -293,6 +334,7 @@ module.exports={
     partnerProfile,
     editPartnerProfile,
     acceptProof,
-    uploadLocationPoints
+    uploadLocationPoints,
+    findBookings
 
 }

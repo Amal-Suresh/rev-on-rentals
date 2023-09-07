@@ -1,6 +1,7 @@
 const express =require('express')
 const partnerRoute = express()
 const partnerController=require("../controller/partnerController")
+const bookingController =require('../controller/bookingContoller')
 const Auth =require('../middleware/Auth')
 const multer = require('multer')
 const path = require('path');
@@ -37,6 +38,11 @@ partnerRoute.post('/partnerProfile',Auth.partnerAuth,partnerController.partnerPr
 partnerRoute.post('/editPartnerProfile',upload.single('image'),Auth.partnerAuth,partnerController.editPartnerProfile)
 partnerRoute.post('/uploadProof',Auth.partnerAuth,upload.fields([{ name: 'aadhaar' }, { name: 'pan' }]),partnerController.acceptProof)
 partnerRoute.post('/uploadLocationPoints',Auth.partnerAuth,partnerController.uploadLocationPoints)
+partnerRoute.get('/findBookings',Auth.partnerAuth,partnerController.findBookings)
+partnerRoute.post('/changeBookingStatus',Auth.partnerAuth,bookingController.changeBookingStatus)
+
+
+// partnerRoute.post('/checkIfPartner',partnerController.checkIfPartner)
 
 
 

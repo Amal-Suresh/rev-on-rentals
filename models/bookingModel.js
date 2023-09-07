@@ -1,19 +1,19 @@
 const mongoose = require('mongoose')
 
-const Booking =mongoose.Schema({
+const bookingSchema =mongoose.Schema({
     user:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"User",
+        ref:"user",
         required:true
     },
     bike:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Bike",
+        ref:"bike",
         required:true
     },
     partner:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"Partner",
+        ref:"partner",
         required:true
     },
     pickUpTime:{
@@ -34,11 +34,11 @@ const Booking =mongoose.Schema({
     },
     receviedTime:{
         type:String,
-        required:true
+        
     },
     receviedDate:{
         type:Date,
-        required:true
+      
     },
     pickUpPoint:{
         type:String,
@@ -54,20 +54,24 @@ const Booking =mongoose.Schema({
     },
     paymentMethod:{
         type:String,
-        required:true
+       
     },
     paymentStatus:{
         type:String,
-        required:true
+       
     },
     totalAmount:{
         type:Number,
         required:true
     },
+
     discountAmount:{
         type:Number,
-        required:true
+    },
+    status:{
+        type:String,
+        default:"booked"
     }
 
 })
-module.exports = mongoose.model("booking",Booking)
+module.exports = mongoose.model("booking",bookingSchema)
