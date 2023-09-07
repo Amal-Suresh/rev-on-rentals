@@ -3,6 +3,7 @@ const userRoute= express()
 const userController = require('../controller/userController')
 const auth=require('../middleware/Auth')
 const bookingContoller = require('../controller/bookingContoller')
+const paymentContoller=require('../controller/paymentContoller')
 const multer = require('multer')
 const path = require('path');
 
@@ -39,6 +40,7 @@ userRoute.get('/retriveCities',userController.findCities)
 userRoute.post('/booking',auth.userAuth,bookingContoller.createBooking)
 userRoute.post('/userRides',auth.userAuth,userController.getBookings)
 userRoute.post('/cancelRide',auth.userAuth,userController.cancelRide)
+userRoute.post('/bookbike',paymentContoller.order)
 
 
 
