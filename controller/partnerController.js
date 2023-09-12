@@ -199,7 +199,9 @@ const verifyForgotOtp = async (req, res) => {
         const result = getOTPAndDate(email);
         if (result) {
             if (result.otp == req.body.otp) {
-                await Partner.updateOne({ email: email }, { $set: { password: password } });
+                let securedPassword=hashPassword(password)
+
+                await Partner.updateOne({ email: email }, { $set: { password: securedPassword } });
                 emailOTPForgetPass.delete(email);
                 res.status(200).send({ success: true, message: "successfully password changed" })
             } else {
@@ -357,5 +359,4 @@ module.exports = {
     uploadLocationPoints,
     findBookings,
     resendOtp
-
 }
