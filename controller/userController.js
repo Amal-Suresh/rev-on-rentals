@@ -1,22 +1,22 @@
 const nodemailer = require('nodemailer')
 const User = require('../models/userModel')
 const Bike = require('../models/bikeModel')
-const Booking =require('../models/bookingModel')
+const Booking = require('../models/bookingModel')
 const bcrypt = require('bcryptjs');
-const jwt    =require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const Partner = require('../models/partnerModel')
-const cloudinary =require('../utils/cloudinery')
+const cloudinary = require('../utils/cloudinery')
 
-const hashPassword = (password)=>{
+const hashPassword = (password) => {
     const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync(password, salt); 
-    return hash; 
+    const hash = bcrypt.hashSync(password, salt);
+    return hash;
 }
 
-const comparePassword = (plainPassword,hashed)=>{
+const comparePassword = (plainPassword, hashed) => {
     verifyPassword = bcrypt.compareSync(plainPassword, hashed);
-     return verifyPassword;
- }
+    return verifyPassword;
+}
 
 
 //send otp to mail
@@ -82,13 +82,13 @@ const verifyOTP = async (req, res) => {
         const result = getOTPAndDate(email);
         if (result) {
             if (result.otp == req.body.otp) {
-                const hash =hashPassword(password)
+                const hash = hashPassword(password)
                 const userData = new User({
                     fname,
                     lname,
                     email,
                     mobile,
-                    password:hash
+                    password: hash
                 })
                 await userData.save()
                 emailOTPDateMap.delete(email);
@@ -107,19 +107,19 @@ const verifyOTP = async (req, res) => {
 const verifyLogin = async (req, res) => {
     try {
         const userData = await User.findOne({ email: req.body.email })
-        if(userData){
-            const camparePass =comparePassword(req.body.password,userData.password)
-        if (camparePass) {
-            const token =jwt.sign({id:userData._id,role:"user"},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
-            const data ={
-                username:`${userData.fname} ${userData.lname}`,
-                token:token
+        if (userData) {
+            const camparePass = comparePassword(req.body.password, userData.password)
+            if (camparePass) {
+                const token = jwt.sign({ id: userData._id, role: "user" }, process.env.JWT_SECRET_KEY, { expiresIn: '1d' })
+                const data = {
+                    username: `${userData.fname} ${userData.lname}`,
+                    token: token
+                }
+                res.status(200).send({ success: true, message: "login successfull", data })
+            } else {
+                res.status(200).send({ success: false, message: "invalid username or password" })
             }
-            res.status(200).send({ success: true, message: "login successfull" ,data})
         } else {
-            res.status(200).send({ success: false, message: "invalid username or password" })
-        }
-        }else{
             res.status(200).send({ success: false, message: "invalid username or password" })
         }
     } catch (error) {
@@ -138,7 +138,7 @@ const checkEmail = async (req, res) => {
             const otp = Math.floor(Math.random() * 9000) + 1000;
             sMail(req.query.email, otp)
             setOTP(req.query.email, otp);
-            res.status(200).send({success: true, message: "otp sented successfully" })
+            res.status(200).send({ success: true, message: "otp sented successfully" })
         }
     } catch (error) {
         console.log(error.message);
@@ -146,63 +146,63 @@ const checkEmail = async (req, res) => {
     }
 }
 
-const checkIfUser =async(req,res)=>{
+const checkIfUser = async (req, res) => {
     try {
         console.log("user reached for checking user");
-    const tokenWithBearer= req.headers['authorization']
-    console.log(tokenWithBearer,";;;;;");
-    const token=tokenWithBearer.split(" ")[1]
-    console.log(token,'JJJJJJ');
-    jwt.verify(token,process.env.JWT_SECRET_KEY,(err,encoded)=>{
-        if(err){
-            console.log("wrong");
-            return res.status(401).send({message:"Auth failed",success:false})
-        }else{
-            const data ={
-                username:`${userData.fname} ${userData.lname}`,
-                token:token
+        const tokenWithBearer = req.headers['authorization']
+        console.log(tokenWithBearer, ";;;;;");
+        const token = tokenWithBearer.split(" ")[1]
+        console.log(token, 'JJJJJJ');
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, encoded) => {
+            if (err) {
+                console.log("wrong");
+                return res.status(401).send({ message: "Auth failed", success: false })
+            } else {
+                const data = {
+                    username: `${userData.fname} ${userData.lname}`,
+                    token: token
+                }
+                res.status(200).send({ message: "Auth successfull", success: true, data })
             }
-            res.status(200).send({message:"Auth successfull",success:true,data})
-        }
-    })
+        })
     } catch (error) {
         console.log(error.message);
-        
+
     }
 }
 
-const userProfile=async(req,res)=>{
-   try {
-    const userId = req.id
-    const userDetails=await User.findOne({_id:userId})
-
-
-    res.status(200).send({success:true,message:"data fetched successfully",data:userDetails})
-   } catch (error) {
-    res.status(401).send({success:false,message:"something went wrong"})
-   }
-}
-
-const editUserProfile =async(req,res)=>{
+const userProfile = async (req, res) => {
     try {
-    const {fname,lname,mobile}=req.body
-    const userDetails =await User.findOne({_id:req.id})
-    if(req.file){
-        const result = await cloudinary.uploader.upload(req.file.path,{folder:"userProfile"})
-        userDetails.image=result.secure_url
+        const userId = req.id
+        const userDetails = await User.findOne({ _id: userId })
+
+
+        res.status(200).send({ success: true, message: "data fetched successfully", data: userDetails })
+    } catch (error) {
+        res.status(401).send({ success: false, message: "something went wrong" })
     }
-    userDetails.fname=fname
-    userDetails.lname=lname
-    userDetails.mobile=mobile
+}
 
-    await userDetails.save()
+const editUserProfile = async (req, res) => {
+    try {
+        const { fname, lname, mobile } = req.body
+        const userDetails = await User.findOne({ _id: req.id })
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, { folder: "userProfile" })
+            userDetails.image = result.secure_url
+        }
+        userDetails.fname = fname
+        userDetails.lname = lname
+        userDetails.mobile = mobile
 
-    console.log(userDetails,"updated details");
-    res.status(200).send({success:true,message:"profile updated successfully",data:userDetails})
+        await userDetails.save()
+
+        console.log(userDetails, "updated details");
+        res.status(200).send({ success: true, message: "profile updated successfully", data: userDetails })
 
     } catch (error) {
-        res.status(401).send({success:false,message:"something went wrong"})
-        
+        res.status(401).send({ success: false, message: "something went wrong" })
+
     }
 
 
@@ -210,38 +210,38 @@ const editUserProfile =async(req,res)=>{
 
 const uploadToCloudinary = async (fileBuffer) => {
     try {
-      const result = await cloudinary.uploader.upload(fileBuffer,{folder:"userIdProof"});
-      return result.secure_url;
+        const result = await cloudinary.uploader.upload(fileBuffer, { folder: "userIdProof" });
+        return result.secure_url;
     } catch (error) {
-      console.error('Error uploading image to Cloudinary:', error);
-      throw error;
+        console.error('Error uploading image to Cloudinary:', error);
+        throw error;
     }
-  };
+};
 
-const acceptProof =async(req,res)=>{
+const acceptProof = async (req, res) => {
     try {
-        const userDetails =await User.findOne({_id:req.id})
+        const userDetails = await User.findOne({ _id: req.id })
         const { licenseFrontSide, licenseBackSide } = req.files;
         const licenseFrontSideImageUrl = await uploadToCloudinary(licenseFrontSide[0].path);
         const licenseBackSideImageUrl = await uploadToCloudinary(licenseBackSide[0].path);
-        userDetails.licenseFrontSide=licenseFrontSideImageUrl
-        userDetails.licenseBackSide=licenseBackSideImageUrl
+        userDetails.licenseFrontSide = licenseFrontSideImageUrl
+        userDetails.licenseBackSide = licenseBackSideImageUrl
         await userDetails.save()
-        res.status(200).send({success:true,message:"proof updated successfully",data:userDetails})
+        res.status(200).send({ success: true, message: "proof updated successfully", data: userDetails })
     } catch (error) {
-        res.status(400).send({success:false,message:'something went wrong'})    
+        res.status(400).send({ success: false, message: 'something went wrong' })
     }
 }
 
 
-const findCities = async(req,res)=>{
+const findCities = async (req, res) => {
     try {
         const cities = await Partner.distinct('city').exec();
-       
-            res.status(200).send({success:true,message:"cities featched",data:cities})
-        
+
+        res.status(200).send({ success: true, message: "cities featched", data: cities })
+
     } catch (error) {
-        res.status(401).send({success:false,message:"something went wrong"})    
+        res.status(401).send({ success: false, message: "something went wrong" })
     }
 }
 
@@ -304,8 +304,7 @@ const getBikes = async (req, res) => {
 
 const getBikes2 = async (req, res) => {
     try {
-        console.log("reached user getBikes");
-        console.log(req.query);
+
 
         const page = parseInt(req.query.page) || 1;
         const sort = req.query.sort || 'default';
@@ -337,21 +336,17 @@ const getBikes2 = async (req, res) => {
             sortOptions.rentPerHour = -1;
         }
 
-        // New filter criteria for availability
+
         if (city && pickUpDate && pickUpTime && dropDate && dropTime) {
-            // Find partners in the specified city
+
             const partnersInCity = await Partner.find({ city });
 
-          
-
-            // Get partner IDs in the city
             const partnerIds = partnersInCity.map(partner => partner._id);
-            console.log(partnerIds,"idddds");
+            console.log(partnerIds, "idddds");
 
-            // Check for overlapping bookings
             const overlappingBookings = await Booking.find({
                 partner: { $in: partnerIds },
-                bike: { $ne: null }, // Exclude bookings with no bike assigned
+                bike: { $ne: null },
                 $or: [
                     {
                         $and: [
@@ -369,14 +364,14 @@ const getBikes2 = async (req, res) => {
                 ],
             });
 
-            console.log(overlappingBookings,"orderderdsss");
+            console.log(overlappingBookings, "orderderdsss");
 
-            // Filter out bikes that have overlapping bookings
+
             const bookedBikeIds = overlappingBookings.map(booking => booking.bike);
             query._id = { $nin: bookedBikeIds };
         }
 
-        console.log(query,"jbdskjbvfvkfbvkhds");
+        console.log(query, "jbdskjbvfvkfbvkhds");
 
         const totalItems = await Bike.countDocuments(query);
         const totalPages = Math.ceil(totalItems / limit);
@@ -402,32 +397,169 @@ const getBikes2 = async (req, res) => {
 }
 
 
-const getBookings =async(req,res)=>{
+const getBookings = async (req, res) => {
     try {
-        
+
         const rides = await Booking.find({ user: req.id }).populate('bike');
         console.log(rides);
 
-        res.status(200).send({success:true,message:"data featched successfully",data:rides})
+        res.status(200).send({ success: true, message: "data featched successfully", data: rides })
     } catch (error) {
         console.log(error.message);
-        res.status(401).send({success:false,message:"something went wrong"})  
+        res.status(401).send({ success: false, message: "something went wrong" })
     }
 }
 
-const cancelRide =async(req,res)=>{
+const cancelRide = async (req, res) => {
     try {
         console.log(req.body);
         const ride = await Booking.findOne({ _id: req.body.order })
-        ride.status="cancelled"
+        ride.status = "cancelled"
         await ride.save()
         console.log(ride);
-        res.status(200).send({success:true,message:"ride cancelled"})
+        res.status(200).send({ success: true, message: "ride cancelled" })
     } catch (error) {
         console.log(error.message);
-        res.status(401).send({success:false,message:"something went wrong"})  
+        res.status(401).send({ success: false, message: "something went wrong" })
     }
 }
+
+const resendOtp = async (req, res) => {
+    try {
+        let email = req.body.email
+        let data = emailOTPDateMap.get(email)
+        if (emailOTPDateMap.has(email)) {
+            const newOTP = Math.floor(Math.random() * 9000) + 1000;
+            const currentData = emailOTPDateMap.get(email);
+            currentData.otp = newOTP;
+            currentData.date = new Date()
+            emailOTPDateMap.set(email, currentData);
+            sMail(email, newOTP)
+            return res.status(200).send({ success: true, message: "otp resended successfully" })
+        } else {
+            return res.status(201).send({ success: false, message: "timeout" })
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ success: false, message: "something went wrong" })
+
+    }
+}
+
+const UserEmailOTPForgetPass = new Map();
+
+function setOtpForForgotPass(email, password, otp) {
+    const currentDate = new Date();
+    UserEmailOTPForgetPass.set(email, { otp, password, date: currentDate });
+}
+
+
+
+
+const forgotPassword = async (req, res) => {
+    try {
+        console.log("reached forget password");
+        console.log(req.body);
+        const { email, password } = req.body
+        const userData = await User.findOne({ email: email })
+        console.log(userData);
+
+        if (!userData) {
+            return res.status(200).json({ success: false, message: "user does not exist" })
+        } else {
+            const newOTP = Math.floor(Math.random() * 9000) + 1000;
+            setOtpForForgotPass(email, password, newOTP)
+            sMail(email, newOTP)
+
+            res.status(200).json({ success: true, message: "message sended successfully" })
+        }
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).json({ success: false, message: "internal server error" })
+
+    }
+}
+
+const forgotPasswordResendOtp = async (req, res) => {
+    try {
+        console.log("reached resent");
+        console.log(req.body.email);
+        const email = req.body.email
+        if (UserEmailOTPForgetPass.has(email)) {
+            const newOTP = Math.floor(Math.random() * 9000) + 1000;
+            const currentData = UserEmailOTPForgetPass.get(email);
+            console.log(currentData);
+            currentData.otp = newOTP;
+            currentData.date = new Date()
+            console.log(currentData);
+
+            UserEmailOTPForgetPass.set(email, currentData);
+            sMail(email, newOTP)
+            res.status(200).send({ success: true, message: "otp resended successfully" })
+        } else {
+            res.status(201).send({ success: false, message: "timeout" })
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ success: false, message: "something went wrong" })
+    }
+
+}
+
+const verifyForgotOtp = async (req, res) => {
+    try {
+        const { email, password } = req.body.data
+        const result = UserEmailOTPForgetPass.get(email);
+        if (result) {
+            if (result.otp == req.body.otp) {
+                const securedPassword=hashPassword(password)
+                await User.updateOne({ email: email }, { $set: { password: securedPassword } });
+                UserEmailOTPForgetPass.delete(email);
+                res.status(200).send({ success: true, message: "successfully password changed" })
+            } else {
+                res.status(200).send({ success: false, message: "Wrong Otp" })
+            }
+        } else {
+            res.status(200).send({ success: false, message: "otp expired" })
+        }
+    } catch (error) {
+        res.status(401).send({ success: false, message: "something went Wrong" })
+    }
+}
+
+const getBikeDetails =async(req,res)=>{
+    try {
+    console.log("reached get bike data");
+    const bikeData = await Bike.findOne({_id:req.query.id}).populate('partnerId')
+    const points=bikeData.partnerId.locations
+    console.log(points);
+    if(!bikeData){
+        return res.status(201).json({success:false,message:"bike not found"})
+    }else{
+        return res.status(200).json({success:true,message:"bike got successfully",data:bikeData,locations:points})
+    }  
+    } catch (error) {
+        console.log(error.message);
+        return res.status(400).json({success:false,message:"something went wrong"})   
+    }
+}
+
+const findOrder = async(req,res)=>{
+    try {
+        console.log("reached find orders");
+        const ordeData = await Booking.findOne({_id:req.query.id}).populate('user').populate('bike')
+        console.log(ordeData);
+        res.status(200).send({success:true,message:"data featched",data:ordeData})
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({success:false,message:"something went wrong"})
+
+    }
+}
+
+
+
 
 module.exports = {
     verifyOTP,
@@ -441,5 +573,11 @@ module.exports = {
     findCities,
     getBikes2,
     getBookings,
-    cancelRide
+    cancelRide,
+    resendOtp,
+    forgotPassword,
+    forgotPasswordResendOtp,
+    verifyForgotOtp,
+    getBikeDetails,
+    findOrder
 };

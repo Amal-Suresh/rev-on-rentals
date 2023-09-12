@@ -50,7 +50,54 @@ const sendMail = ((email) => {
         from: process.env.EMAIL_USER,
         to: email,
         subject: 'Update Your Profile',
-        html: '<p>Hii' + ',Please click here to <a href="http://localhost:3000/join-us">Reset</a> your password.</p>'
+        html:`
+        <html>
+        <head>
+          <style>
+            body {
+              background-color: yellow;
+              color: black;
+              font-family: Arial, sans-serif;
+            }
+            .container {
+              background-color: white;
+              border-radius: 10px;
+              padding: 20px;
+              margin: 20px auto;
+              max-width: 600px;
+            }
+            h1 {
+              color: black;
+            }
+            p {
+              color: black;
+              font-size: 18px;
+            }
+            .btn {
+              display: inline-block;
+              padding: 10px 20px;
+              background-color: black;
+              color: white;
+              text-decoration: none;
+              border-radius: 5px;
+              margin-top: 20px;
+            }
+          </style>
+        </head>
+        <body>
+          <div class="container">
+            <h1>Partner Verification for rev-on Rental</h1>
+            <p>To complete your partner verification and enjoy the benefits of being a verified partner, please follow these steps:</p>
+            <ol>
+              <li>Log on to the website.</li>
+              <li>Update your profile.</li>
+              <li>Click the link below to log in to the partner dashboard.</li>
+            </ol>
+            <a href="http://localhost:3000/partner/login" class="btn">Log in to Partner Dashboard</a>
+          </div>
+        </body>
+        </html>
+      `
     };
 
     // send the email

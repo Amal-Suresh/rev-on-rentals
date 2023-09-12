@@ -14,7 +14,7 @@ const bikeSchema =mongoose.Schema({
     },
     partnerId:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:'Partner',
+        ref:'partner',
         required:true
     },
     category:{

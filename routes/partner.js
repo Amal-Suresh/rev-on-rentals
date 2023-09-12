@@ -40,6 +40,8 @@ partnerRoute.post('/uploadProof',Auth.partnerAuth,upload.fields([{ name: 'aadhaa
 partnerRoute.post('/uploadLocationPoints',Auth.partnerAuth,partnerController.uploadLocationPoints)
 partnerRoute.get('/findBookings',Auth.partnerAuth,partnerController.findBookings)
 partnerRoute.post('/changeBookingStatus',Auth.partnerAuth,bookingController.changeBookingStatus)
+partnerRoute.post('/resendOtp',partnerController.resendOtp)
+
 
 
 // partnerRoute.post('/checkIfPartner',partnerController.checkIfPartner)

@@ -1,9 +1,9 @@
 const Razorpay =require('razorpay')
 const crypto =require('crypto');
-const { error } = require('console');
+const Booking=require('../models/bookingModel')
 
 
-const order=async(req,res)=>{
+const order = async(req,res)=>{
     try {
         console.log("reached order",req.body);
         const instance=new Razorpay({
@@ -33,11 +33,31 @@ const order=async(req,res)=>{
 }
 
 
+
+
+
+
 const verify =async(req,res)=>{
     try {
+        console.log("reached verify" , req.body);
+
         const {razorpay_order_id,
                razorpay_payment_id,
-               razorpay_signature}=req.body
+               razorpay_signature ,
+               bike,
+               pickUpTime,
+               pickUpDate,
+               dropTime,
+               dropDate,
+               pickUpPoint,
+               dropPoint,
+               city,
+               helmet,
+               rent,
+               grandTotal,
+               total,
+               partnerId
+                }=req.body
 
                const sign=razorpay_order_id +'|'+razorpay_payment_id;
                const expectedSign=crypto
@@ -45,8 +65,36 @@ const verify =async(req,res)=>{
                .update(sign.toString())
                .digest('hex');
 
+               
                if(razorpay_signature===expectedSign){
-                return res.status(200).json({success:true,message:"payment verified successfully"})
+                console.log("successs");
+                const booking = new Booking({
+                    user:req.id,
+                    partner:partnerId,
+                    bike,
+                    pickUpTime,
+                    pickUpDate,
+                    dropTime,
+                    dropDate,
+                    pickUpPoint,
+                    dropPoint,
+                    city,
+                    paymentMethod:"Online",
+                    paymentStatus:"sucesss",
+                    totalAmount:total,
+                    grandTotal,
+                    discountAmount:0,
+                    helmet,
+                    rent,
+                    totalAmount:total,
+                    date:new Date()
+                })
+               const newBooking= await booking.save()
+
+                let id =newBooking._id
+
+
+                return res.status(200).json({success:true,message:"booking successfully",data:id})
                }else{
                 return res.status(400).json({success:false,message:"invalid signature sent"})
                }

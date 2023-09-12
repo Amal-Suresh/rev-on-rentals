@@ -41,6 +41,19 @@ userRoute.post('/booking',auth.userAuth,bookingContoller.createBooking)
 userRoute.post('/userRides',auth.userAuth,userController.getBookings)
 userRoute.post('/cancelRide',auth.userAuth,userController.cancelRide)
 userRoute.post('/bookbike',paymentContoller.order)
+userRoute.post('/resendOtp',userController.resendOtp)
+userRoute.post('/forgetpassword',userController.forgotPassword)
+userRoute.post('/forgetPassResendOtp',userController.forgotPasswordResendOtp)
+userRoute.post('/verifyForgotOtp',userController.verifyForgotOtp)
+userRoute.get('/getBikeDetails',userController.getBikeDetails)
+userRoute.post('/verifyPayment',auth.userAuth,paymentContoller.verify)
+userRoute.get('/findOrder',userController.findOrder)
+
+
+
+
+
+
 
 
 

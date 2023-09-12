@@ -60,6 +60,17 @@ const bookingSchema =mongoose.Schema({
         type:String,
        
     },
+    helmet:{
+        type:String,
+       
+    },
+    rent:{
+        type:String,
+       
+    },
+    grandTotal:{
+        type:String,
+    },
     totalAmount:{
         type:Number,
         required:true
@@ -68,10 +79,16 @@ const bookingSchema =mongoose.Schema({
     discountAmount:{
         type:Number,
     },
+    additionalAmount:{
+        type:Number,
+        default:0
+    },
     status:{
         type:String,
         default:"booked"
+    },
+    date:{
+        type:Date,
     }
-
 })
 module.exports = mongoose.model("booking",bookingSchema)
