@@ -29,7 +29,6 @@ const storage = multer.diskStorage({
 
 partnerRoute.post('/join-us',partnerController.receivePartner)
 partnerRoute.post('/login',partnerController.verifyLogin)
-partnerRoute.post('/addBikes',upload.single('image'),Auth.partnerAuth,partnerController.addBikes)
 partnerRoute.get('/viewBikes',Auth.partnerAuth,partnerController.viewBikes)
 partnerRoute.get('/changeStatus',Auth.partnerAuth,partnerController.changeStatus)
 partnerRoute.post('/forgetpassword',partnerController.forgotPass)
@@ -41,6 +40,8 @@ partnerRoute.post('/uploadLocationPoints',Auth.partnerAuth,partnerController.upl
 partnerRoute.get('/findBookings',Auth.partnerAuth,partnerController.findBookings)
 partnerRoute.post('/changeBookingStatus',Auth.partnerAuth,bookingController.changeBookingStatus)
 partnerRoute.post('/resendOtp',partnerController.resendOtp)
+partnerRoute.post('/addBikes',upload.array('image',3),Auth.partnerAuth,partnerController.addBikes)
+
 
 
 

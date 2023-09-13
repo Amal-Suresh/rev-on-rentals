@@ -48,6 +48,8 @@ userRoute.post('/verifyForgotOtp',userController.verifyForgotOtp)
 userRoute.get('/getBikeDetails',userController.getBikeDetails)
 userRoute.post('/verifyPayment',auth.userAuth,paymentContoller.verify)
 userRoute.get('/findOrder',userController.findOrder)
+userRoute.post('/ratingAndReview',userController.ratingAndReview)
+
 
 
 

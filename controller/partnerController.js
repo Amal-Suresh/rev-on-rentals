@@ -72,8 +72,17 @@ const verifyLogin = async (req, res) => {
 
 const addBikes = async (req, res) => {
     try {
+        console.log(req.files,"gggggggggggggggggggggggggggggggggggggggggg");
+        let bikeImages =req.files
+        let images =[]
+        for(let i=0;i<bikeImages.length;i++){
+            const result = await cloudinary.uploader.upload(bikeImages[i].path, { folder: "bikeImages" })
+            images.push( result.secure_url)
 
-        const result = await cloudinary.uploader.upload(req.file.path, { folder: "bikeImages" })
+        }
+        console.log(images);
+
+      
         const { name, brand, category, engineCC, makeYear, rentPerHour, plateNumber } = req.body
         const bikeDetails = new Bike({
             name,
@@ -83,7 +92,7 @@ const addBikes = async (req, res) => {
             makeYear,
             rentPerHour,
             plateNumber,
-            image: result.secure_url,
+            image:images,
             partnerId: req.id
         })
         await bikeDetails.save()

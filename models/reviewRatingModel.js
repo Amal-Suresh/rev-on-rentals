@@ -11,9 +11,9 @@ const reviewSchema =mongoose.Schema({
         ref:"bike",
         required:true
     },
-    partner:{
+    booking:{
         type:mongoose.Schema.Types.ObjectId,
-        ref:"partner",
+        ref:"booking",
         required:true
     },
     rating:{
@@ -21,10 +21,10 @@ const reviewSchema =mongoose.Schema({
         required:true
     },
     message:{
-        type:Date,
+        type:String,
         required:true
     },
-    dropTime:{
+    date:{
         type:String,
         required:true
     }

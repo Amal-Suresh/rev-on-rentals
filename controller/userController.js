@@ -6,6 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const Partner = require('../models/partnerModel')
 const cloudinary = require('../utils/cloudinery')
+const Review =require('../models/reviewRatingModel')
 
 const hashPassword = (password) => {
     const salt = bcrypt.genSaltSync(10);
@@ -513,7 +514,7 @@ const verifyForgotOtp = async (req, res) => {
         const result = UserEmailOTPForgetPass.get(email);
         if (result) {
             if (result.otp == req.body.otp) {
-                const securedPassword=hashPassword(password)
+                const securedPassword = hashPassword(password)
                 await User.updateOne({ email: email }, { $set: { password: securedPassword } });
                 UserEmailOTPForgetPass.delete(email);
                 res.status(200).send({ success: true, message: "successfully password changed" })
@@ -528,34 +529,62 @@ const verifyForgotOtp = async (req, res) => {
     }
 }
 
-const getBikeDetails =async(req,res)=>{
+const getBikeDetails = async (req, res) => {
     try {
-    console.log("reached get bike data");
-    const bikeData = await Bike.findOne({_id:req.query.id}).populate('partnerId')
-    const points=bikeData.partnerId.locations
-    console.log(points);
-    if(!bikeData){
-        return res.status(201).json({success:false,message:"bike not found"})
-    }else{
-        return res.status(200).json({success:true,message:"bike got successfully",data:bikeData,locations:points})
-    }  
+        console.log("reached get bike data");
+        const bikeData = await Bike.findOne({ _id: req.query.id }).populate('partnerId')
+        const points = bikeData.partnerId.locations
+        console.log(points);
+        if (!bikeData) {
+            return res.status(201).json({ success: false, message: "bike not found" })
+        } else {
+            return res.status(200).json({ success: true, message: "bike got successfully", data: bikeData, locations: points })
+        }
     } catch (error) {
         console.log(error.message);
-        return res.status(400).json({success:false,message:"something went wrong"})   
+        return res.status(400).json({ success: false, message: "something went wrong" })
     }
 }
 
-const findOrder = async(req,res)=>{
+const findOrder = async (req, res) => {
     try {
         console.log("reached find orders");
-        const ordeData = await Booking.findOne({_id:req.query.id}).populate('user').populate('bike')
+        const ordeData = await Booking.findOne({ _id: req.query.id }).populate('user').populate('bike')
         console.log(ordeData);
-        res.status(200).send({success:true,message:"data featched",data:ordeData})
+        res.status(200).send({ success: true, message: "data featched", data: ordeData })
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({success:false,message:"something went wrong"})
+        res.status(500).send({ success: false, message: "something went wrong" })
 
     }
+}
+
+const ratingAndReview = async (req, res) => {
+    try {
+
+    console.log("reached review and rateing");
+    const{userId,bikeId,bookingId,stars,review}=req.body.newData
+    let newReview =new Review({
+        user:userId,
+        bike:bikeId,
+        booking:bookingId,
+        rating:stars,
+        message:review,
+        date:new Date()
+    })
+    await newReview.save()
+    res.status(200).send({success:true,message:"review successfully added"})
+
+
+    console.log("ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+
+    } catch (error) {
+        console.log(error.message);
+    res.status(500).send({success:false,message:"something went wrong"})
+
+
+    }
+
 }
 
 
@@ -579,5 +608,6 @@ module.exports = {
     forgotPasswordResendOtp,
     verifyForgotOtp,
     getBikeDetails,
-    findOrder
+    findOrder,
+    ratingAndReview
 };
