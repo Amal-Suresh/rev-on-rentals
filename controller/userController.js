@@ -6,7 +6,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken')
 const Partner = require('../models/partnerModel')
 const cloudinary = require('../utils/cloudinery')
-const Review =require('../models/reviewRatingModel')
+const Review = require('../models/reviewRatingModel')
 
 const hashPassword = (password) => {
     const salt = bcrypt.genSaltSync(10);
@@ -402,9 +402,18 @@ const getBookings = async (req, res) => {
     try {
 
         const rides = await Booking.find({ user: req.id }).populate('bike');
-        console.log(rides);
+        console.log(rides, "ppppppppppppppppppppppppppp");
 
-        res.status(200).send({ success: true, message: "data featched successfully", data: rides })
+        const reviews = await Review.find({ user: req.id }).distinct('booking').exec()
+        const objectIdStrings = [];
+
+        for (const objectId of reviews) {
+            objectIdStrings.push(objectId.toString());
+        }
+
+        console.log(reviews,objectIdStrings, "IIIIIIIIIIIIIIIIII");
+
+        res.status(200).send({ success: true, message: "data featched successfully", data: rides ,doneReviews:objectIdStrings})
     } catch (error) {
         console.log(error.message);
         res.status(401).send({ success: false, message: "something went wrong" })
@@ -562,25 +571,25 @@ const findOrder = async (req, res) => {
 const ratingAndReview = async (req, res) => {
     try {
 
-    console.log("reached review and rateing");
-    const{userId,bikeId,bookingId,stars,review}=req.body.newData
-    let newReview =new Review({
-        user:userId,
-        bike:bikeId,
-        booking:bookingId,
-        rating:stars,
-        message:review,
-        date:new Date()
-    })
-    await newReview.save()
-    res.status(200).send({success:true,message:"review successfully added"})
+        console.log("reached review and rateing");
+        const { userId, bikeId, bookingId, stars, review } = req.body.newData
+        let newReview = new Review({
+            user: userId,
+            bike: bikeId,
+            booking: bookingId,
+            rating: stars,
+            message: review,
+            date: new Date()
+        })
+        await newReview.save()
+        res.status(200).send({ success: true, message: "review successfully added" })
 
 
-    console.log("ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+        console.log("ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
     } catch (error) {
         console.log(error.message);
-    res.status(500).send({success:false,message:"something went wrong"})
+        res.status(500).send({ success: false, message: "something went wrong" })
 
 
     }

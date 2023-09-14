@@ -72,8 +72,10 @@ const verifyLogin = async (req, res) => {
 
 const addBikes = async (req, res) => {
     try {
+        console.log(req.body,"lllllllllllllllllllllllllllll");
         console.log(req.files,"gggggggggggggggggggggggggggggggggggggggggg");
         let bikeImages =req.files
+      
         let images =[]
         for(let i=0;i<bikeImages.length;i++){
             const result = await cloudinary.uploader.upload(bikeImages[i].path, { folder: "bikeImages" })
