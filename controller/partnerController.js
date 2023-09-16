@@ -72,8 +72,6 @@ const verifyLogin = async (req, res) => {
 
 const addBikes = async (req, res) => {
     try {
-        console.log(req.body,"lllllllllllllllllllllllllllll");
-        console.log(req.files,"gggggggggggggggggggggggggggggggggggggggggg");
         let bikeImages =req.files
       
         let images =[]
