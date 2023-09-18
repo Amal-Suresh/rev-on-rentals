@@ -147,30 +147,6 @@ const checkEmail = async (req, res) => {
     }
 }
 
-const checkIfUser = async (req, res) => {
-    try {
-        console.log("user reached for checking user");
-        const tokenWithBearer = req.headers['authorization']
-        console.log(tokenWithBearer, ";;;;;");
-        const token = tokenWithBearer.split(" ")[1]
-        console.log(token, 'JJJJJJ');
-        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, encoded) => {
-            if (err) {
-                console.log("wrong");
-                return res.status(401).send({ message: "Auth failed", success: false })
-            } else {
-                const data = {
-                    username: `${userData.fname} ${userData.lname}`,
-                    token: token
-                }
-                res.status(200).send({ message: "Auth successfull", success: true, data })
-            }
-        })
-    } catch (error) {
-        console.log(error.message);
-
-    }
-}
 
 const userProfile = async (req, res) => {
     try {
@@ -305,8 +281,6 @@ const getBikes = async (req, res) => {
 
 const getBikes2 = async (req, res) => {
     try {
-
-
         const page = parseInt(req.query.page) || 1;
         const sort = req.query.sort || 'default';
         const filterCat = req.query.category || '';
@@ -316,7 +290,6 @@ const getBikes2 = async (req, res) => {
         const pickUpTime = req.query.pickUpTime || '';
         const dropDate = req.query.dropDate || '';
         const dropTime = req.query.dropTime || '';
-
         const limit = 8;
         const skip = (page - 1) * limit;
 
@@ -595,6 +568,33 @@ const ratingAndReview = async (req, res) => {
     }
 
 }
+
+const checkIfUser = async (req, res) => {
+    try {
+        const tokenWithBearer = req.headers['authorization'];
+        const token = tokenWithBearer.split(" ")[1];
+        jwt.verify(token, process.env.JWT_SECRET_KEY, async (err, encoded) => {
+            if (err) {
+                return res.status(401).send({ message: "Auth failed", success: false });
+            } else if (encoded.role === 'user') {
+                try {
+                    const userData = await User.findOne({ _id: encoded.id });
+                    const user={
+                        name:userData.fname +" "+ userData.lname,
+                        token
+                    }
+                    res.status(200).send({ message: "Auth successful", success: true ,data:user });
+                } catch (error) {
+                    console.log(error.message);
+                    res.status(500).send({ message: "Something went wrong", success: false });
+                }
+            }
+        });
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: "Something went wrong", success: false });
+    }
+};
 
 
 

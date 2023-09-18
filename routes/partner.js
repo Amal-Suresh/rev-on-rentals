@@ -3,6 +3,7 @@ const partnerRoute = express()
 const partnerController=require("../controller/partnerController")
 const bookingController =require('../controller/bookingContoller')
 const Auth =require('../middleware/Auth')
+
 const multer = require('multer')
 const path = require('path');
 
@@ -41,6 +42,8 @@ partnerRoute.get('/findBookings',Auth.partnerAuth,partnerController.findBookings
 partnerRoute.post('/changeBookingStatus',Auth.partnerAuth,bookingController.changeBookingStatus)
 partnerRoute.post('/resendOtp',partnerController.resendOtp)
 partnerRoute.post('/addBikes',upload.array('image',3),Auth.partnerAuth,partnerController.addBikes)
+partnerRoute.post('/checkIfPartner',partnerController.checkIfPartner)
+
 
 
 

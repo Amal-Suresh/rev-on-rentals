@@ -106,8 +106,18 @@ const addBikes = async (req, res) => {
 
 const viewBikes = async (req, res) => {
     try {
-        const bikes = await Bike.find({ partnerId: req.id })
-        res.status(200).send({ success: true, message: "data fetched successfully", data: bikes })
+        const page = parseInt(req.query.page)
+        const limit = 6;
+        const skip = (page - 1) * limit;
+        const totalItems = await Bike.countDocuments();
+        const totalPages = Math.ceil(totalItems / limit);
+        const bikes = await Bike.find({ partnerId: req.id }).skip(skip).limit(limit);
+        const details={
+            bikes,
+            page,
+            totalPages
+        }
+        res.status(200).send({ success: true, message: "data fetched successfully", data: details })
     } catch (error) {
         res.status(401).send({ success: false, message: "Something went wrong" })
     }
@@ -296,29 +306,6 @@ const uploadLocationPoints = async (req, res) => {
     }
 }
 
-const checkIfPartner = async (req, res) => {
-    try {
-        const tokenWithBearer = req.headers['authorization'];
-        const token = tokenWithBearer.split(" ")[1]
-        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, encoded) => {
-            if (err) {
-                return res.status(401).send({ message: "Auth failed", success: false })
-            } else if (encoded.role === 'partner') {
-                let partner = {
-                    token: token,
-                    username: encoded.username
-                }
-                res.status(200).send({ success: true, message: "Auth success", data: partner })
-            }
-        })
-
-    } catch (error) {
-        console.log(error.message);
-        res.status(401).send({ message: "some thing went wrong", success: false })
-
-
-    }
-}
 
 const findBookings = async (req, res) => {
     try {
@@ -354,6 +341,34 @@ const resendOtp = async (req, res) => {
 }
 
 
+const checkIfPartner = async (req, res) => {
+    try {
+        console.log("check if partner reached");
+        const tokenWithBearer = req.headers['authorization'];
+        const token = tokenWithBearer.split(" ")[1]
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, encoded) => {
+            if (err) {
+                return res.status(401).send({ message: "Auth failed", success: false })
+            } else if (encoded.role === 'partner') {
+                console.log(encoded);
+                let partner = {
+                    token: token,
+                    username: encoded.username
+                }
+                res.status(200).send({ success: true, message: "Auth success", data: partner })
+            }
+        })
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(401).send({ message: "some thing went wrong", success: false })
+
+
+    }
+}
+
+
+
 module.exports = {
     receivePartner,
     verifyLogin,
@@ -367,5 +382,6 @@ module.exports = {
     acceptProof,
     uploadLocationPoints,
     findBookings,
-    resendOtp
+    resendOtp,
+    checkIfPartner
 }
