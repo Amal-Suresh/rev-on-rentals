@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const partnerAuth =(req,res,next)=>{
     try {
         const tokenWithBearer = req.headers['authorization'];
-        console.log(tokenWithBearer,";;;;;");
         const token=tokenWithBearer.split(" ")[1]
         jwt.verify(token,process.env.JWT_SECRET_KEY,(err,encoded)=>{
             if(err){

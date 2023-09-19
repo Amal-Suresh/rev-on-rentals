@@ -72,17 +72,17 @@ const verifyLogin = async (req, res) => {
 
 const addBikes = async (req, res) => {
     try {
-        let bikeImages =req.files
-      
-        let images =[]
-        for(let i=0;i<bikeImages.length;i++){
+        let bikeImages = req.files
+
+        let images = []
+        for (let i = 0; i < bikeImages.length; i++) {
             const result = await cloudinary.uploader.upload(bikeImages[i].path, { folder: "bikeImages" })
-            images.push( result.secure_url)
+            images.push(result.secure_url)
 
         }
         console.log(images);
 
-      
+
         const { name, brand, category, engineCC, makeYear, rentPerHour, plateNumber } = req.body
         const bikeDetails = new Bike({
             name,
@@ -92,7 +92,7 @@ const addBikes = async (req, res) => {
             makeYear,
             rentPerHour,
             plateNumber,
-            image:images,
+            image: images,
             partnerId: req.id
         })
         await bikeDetails.save()
@@ -112,7 +112,7 @@ const viewBikes = async (req, res) => {
         const totalItems = await Bike.countDocuments();
         const totalPages = Math.ceil(totalItems / limit);
         const bikes = await Bike.find({ partnerId: req.id }).skip(skip).limit(limit);
-        const details={
+        const details = {
             bikes,
             page,
             totalPages
@@ -218,7 +218,7 @@ const verifyForgotOtp = async (req, res) => {
         const result = getOTPAndDate(email);
         if (result) {
             if (result.otp == req.body.otp) {
-                let securedPassword=hashPassword(password)
+                let securedPassword = hashPassword(password)
 
                 await Partner.updateOne({ email: email }, { $set: { password: securedPassword } });
                 emailOTPForgetPass.delete(email);
@@ -329,14 +329,14 @@ const resendOtp = async (req, res) => {
             currentData.otp = newOTP;
             currentData.date = new Date()
             emailOTPForgetPass.set(email, currentData);
-            sMail(email,newOTP)
-            res.status(200).send({success:true,message:"otp resended successfully"})
+            sMail(email, newOTP)
+            res.status(200).send({ success: true, message: "otp resended successfully" })
         } else {
-            res.status(201).send({success:false,message:"timeout"})
+            res.status(201).send({ success: false, message: "timeout" })
         }
     } catch (error) {
         console.log(error.message);
-        res.status(500).send({success:false,message:"something went wrong"})
+        res.status(500).send({ success: false, message: "something went wrong" })
     }
 }
 
@@ -367,6 +367,30 @@ const checkIfPartner = async (req, res) => {
     }
 }
 
+const deleteBike = async (req, res) => {
+    try {
+        const id  = req.query.id
+        const currentDate = new Date()
+        const checkBike = await Booking.find({
+            bike: id,
+            pickUpDate: { $gte: currentDate }
+        })
+        if (checkBike.length > 0) {
+            return res.status(201).send({ success: false, message: "bike is already in booking" })
+        } else {
+            const deleteBike = await Bike.findOneAndDelete({ _id: id })
+            if (deleteBike) {
+                res.status(200).send({ success: true, message: "bike deleted successfully" })
+            }else{
+                res.status(203).send({ success: false, message: "bike deletion failed" })
+            }
+        }
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ success: false, message: "something went wrong" })
+    }
+}
+
 
 
 module.exports = {
@@ -383,5 +407,6 @@ module.exports = {
     uploadLocationPoints,
     findBookings,
     resendOtp,
-    checkIfPartner
+    checkIfPartner,
+    deleteBike
 }
