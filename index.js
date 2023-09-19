@@ -18,15 +18,9 @@ const app = express()
 app.use(express.urlencoded({extended:false}))
 app.use(express.json())
 
-// app.use(cors({
-//     origin:"http://localhost:3000/",
-//     methods: ["GET", "POST"],
-//   credentials: true,
-//   allowedHeaders: ["Content-Type", "Access-Control-Allow-Headers"]
-// }))
 app.use(cors({
   origin: 'http://localhost:3000',  
-  methods: ['GET', 'POST','PUT','PATCH'], // Allow specific HTTP methods
+  methods: ['GET', 'POST','PUT','PATCH','DELETE'], // Allow specific HTTP methods
   credentials: true, // Allow cookies and authentication headers
 }));
 
