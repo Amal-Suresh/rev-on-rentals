@@ -10,6 +10,8 @@ adminRoute.get('/rejectPartner',adminContoller.rejectRequest)
 adminRoute.get('/sendMailToPartner',adminContoller.sendMailtoPartner)
 adminRoute.get('/verifyPartner',adminContoller.verifyPartner)
 adminRoute.get('/partnerVerifiedList',adminContoller.loadVerifiedPartners)
+adminRoute.post('/login',adminContoller.adminLogin)
+
 
 
 
