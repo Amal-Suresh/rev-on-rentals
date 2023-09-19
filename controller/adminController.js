@@ -117,7 +117,7 @@ const sendMail = ((email) => {
 const loadPartnerRequests = async (req, res) => {
     try {
         console.log("reached partner requests");
-        const partnerReqs = await Partner.find({ isVerifed: false })
+        const partnerReqs = await Partner.find({isVerifed: { $in: ["notVerified", "mailSented"]} })
         console.log(partnerReqs, "partner date");
         if (partnerReqs) {
             res.status(200).send({ message: "requests featched successfully", success: true, data: partnerReqs })
@@ -185,7 +185,11 @@ const rejectRequest = async (req, res) => {
 const sendMailtoPartner = async (req, res) => {
     try {
         sendMail(req.query.email)
-        res.status(200).send({ success: true, message: "message sented" })
+        const partnerData = await Partner.findOne({email:req.query.email})
+        partnerData.isVerifed="mailSented"
+        await partnerData.save()
+        const partnerReqs = await Partner.find({isVerified: { $in: ["notVerified", "mailSented"]} })
+        res.status(200).send({ success: true, message: "message sented",data:partnerReqs })
     } catch (error) {
         res.status(401).send({ success: false, message: "Something went wrong" })
 
@@ -197,7 +201,11 @@ const verifyPartner = async (req, res) => {
     try {
         console.log(req.query.email);
         const changeStatus = await Partner.findOne({ email: req.query.email })
-        changeStatus.isVerifed = !changeStatus.isVerifed
+        if( changeStatus.isVerifed === "verified"){
+            changeStatus.isVerifed = "notVerified"
+        }else{
+            changeStatus.isVerifed = "verified"
+        }
         await changeStatus.save()
         res.status(200).send({ success: true, message: "Partner Verified" })
     } catch (error) {
@@ -206,10 +214,12 @@ const verifyPartner = async (req, res) => {
 }
 
 
+
+
 const loadVerifiedPartners = async (req, res) => {
     try {
         console.log("reached partner requests");
-        const partnerReqs = await Partner.find({ isVerifed: true })
+        const partnerReqs = await Partner.find({ isVerifed:"verified" })
         console.log(partnerReqs, "partner date");
         if (partnerReqs) {
             res.status(200).send({ message: "requests featched successfully", success: true, data: partnerReqs })

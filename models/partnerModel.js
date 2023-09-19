@@ -25,8 +25,8 @@ const Partner =mongoose.Schema({
         default:true
     },
     isVerifed:{
-        type:Boolean,
-        default:false
+        type:String,
+        default:"notVerified"
     },
     city:{
         type:String,
