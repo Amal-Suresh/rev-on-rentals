@@ -227,14 +227,10 @@ const findCities = async (req, res) => {
 
 const getBikes = async (req, res) => {
     try {
-        console.log("reached user getBikes")
-        console.log(req.query);
-
         const page = parseInt(req.query.page) || 1;
         const sort = req.query.sort || 'default';
         const filterCat = req.query.category || '';
         const search = req.query.search || '';
-
         const limit = 8;
         const skip = (page - 1) * limit;
 
@@ -245,7 +241,6 @@ const getBikes = async (req, res) => {
         if (search) {
             query.name = { $regex: search, $options: 'i' };
         }
-
         let sortOptions = {};
         if (sort === 'lowToHigh') {
             sortOptions.rentPerHour = 1;
