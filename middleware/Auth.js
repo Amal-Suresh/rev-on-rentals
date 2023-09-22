@@ -20,13 +20,11 @@ const partnerAuth =(req,res,next)=>{
 const userAuth = async (req, res, next) => {
     try {
       const tokenWithBearer = req.headers['authorization'];
-  
       if (!tokenWithBearer || !tokenWithBearer.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Authorization header missing or invalid', success: false });
       }
   
       const token = tokenWithBearer.split(' ')[1];
-  
       jwt.verify(token, process.env.JWT_SECRET_KEY, (err, encoded) => {
         if (err) {
           console.log('wrongToken', err.message);

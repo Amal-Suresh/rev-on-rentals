@@ -43,6 +43,8 @@ userRoute.post('/verifyPayment',auth.userAuth,paymentContoller.verify)
 userRoute.get('/findOrder',userController.findOrder)
 userRoute.post('/ratingAndReview',userController.ratingAndReview)
 userRoute.post('/checkIfUser',userController.checkIfUser)
+userRoute.post('/sendMessage',auth.userAuth,userController.sendMessage)
+
 
 
 

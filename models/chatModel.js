@@ -6,6 +6,9 @@ const chatSchema=mongoose.Schema({
         ref:"user",
         required:true
     },
+    sender:{
+        type:String
+    },
     text:{
         type:String,
     },

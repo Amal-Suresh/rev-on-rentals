@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 const Partner = require('../models/partnerModel')
 const cloudinary = require('../utils/cloudinery')
 const Review = require('../models/reviewRatingModel')
+const Chat = require('../models/chatModel')
 
 const hashPassword = (password) => {
     const salt = bcrypt.genSaltSync(10);
@@ -591,6 +592,30 @@ const checkIfUser = async (req, res) => {
     }
 };
 
+const sendMessage=async(req,res)=>{
+    try {
+        console.log("reached iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+        const chat=new Chat({
+            user:req.id,
+            sender:"User",
+            text:req.body.message,
+            createdAt:new Date()
+        })
+        const saveChat=await chat.save()
+        if(saveChat){
+            res.status(200).send({success:true,message:"message sented successfully"})
+        }else{
+            res.status(401).send({success:false,message:"message not sented"})
+
+
+        }
+
+
+    } catch (error) {
+        
+    }
+}
+
 
 
 
@@ -613,5 +638,6 @@ module.exports = {
     verifyForgotOtp,
     getBikeDetails,
     findOrder,
-    ratingAndReview
+    ratingAndReview,
+    sendMessage
 };
