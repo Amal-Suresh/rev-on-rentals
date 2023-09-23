@@ -11,6 +11,11 @@ adminRoute.get('/sendMailToPartner',adminContoller.sendMailtoPartner)
 adminRoute.get('/verifyPartner',adminContoller.verifyPartner)
 adminRoute.get('/partnerVerifiedList',adminContoller.loadVerifiedPartners)
 adminRoute.post('/login',adminContoller.adminLogin)
+adminRoute.get('/fetchChat',adminContoller.fetchUser)
+adminRoute.get('/fetchIndividualChat',adminContoller.fetchIndividualChat)
+adminRoute.post('/replyToUser',adminContoller.replyToUser)
+
+
 
 
 
