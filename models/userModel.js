@@ -24,7 +24,7 @@ const userSchema =mongoose.Schema({
         type:String
     },
     status:{
-        type:Boolean,
+        type:Boolean,   
         default:true
     },
     licenseFrontSide:{

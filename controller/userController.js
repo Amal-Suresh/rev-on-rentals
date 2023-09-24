@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken')
 const Partner = require('../models/partnerModel')
 const cloudinary = require('../utils/cloudinery')
 const Review = require('../models/reviewRatingModel')
+const Chat = require('../models/chatModel')
 
 const hashPassword = (password) => {
     const salt = bcrypt.genSaltSync(10);
@@ -227,14 +228,10 @@ const findCities = async (req, res) => {
 
 const getBikes = async (req, res) => {
     try {
-        console.log("reached user getBikes")
-        console.log(req.query);
-
         const page = parseInt(req.query.page) || 1;
         const sort = req.query.sort || 'default';
         const filterCat = req.query.category || '';
         const search = req.query.search || '';
-
         const limit = 8;
         const skip = (page - 1) * limit;
 
@@ -245,7 +242,6 @@ const getBikes = async (req, res) => {
         if (search) {
             query.name = { $regex: search, $options: 'i' };
         }
-
         let sortOptions = {};
         if (sort === 'lowToHigh') {
             sortOptions.rentPerHour = 1;
@@ -596,6 +592,57 @@ const checkIfUser = async (req, res) => {
     }
 };
 
+const sendMessage=async(req,res)=>{
+    try {
+        console.log("reached iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
+        const chat=new Chat({
+            user:req.id,
+            sender:"User",
+            text:req.body.message,
+            createdAt:new Date()
+        })
+        const saveChat=await chat.save()
+        const messages = await Chat.find({
+            'user': req.id // Messages received by or associated with the user
+          })
+          .sort({ createdAt: 1 }); 
+
+        if(saveChat){
+            res.status(200).send({success:true,message:"message sented successfully",data:messages})
+        }else{
+            res.status(401).send({success:false,message:"message not sented"})
+
+
+        }
+
+
+    } catch (error) {
+        
+    }
+}
+
+const fetchIndividualChat=async(req,res)=>{
+    try {
+        console.log("ooooooooiiiiiiiiiiiiiiiiii");
+        console.log("reached lkognjnnnnnnnnnnnnnmnnnnnnnnnnnnnnnnnnnn",req.id);
+        const messages = await Chat.find({
+            'user': req.id // Messages received by or associated with the user
+          })
+          .sort({ createdAt: 1 }); 
+          console.log(messages);
+
+          if(messages){
+            res.status(200).send({success:true,message:"something",data:messages})
+          }
+          
+        
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+}
+
+
 
 
 
@@ -618,5 +665,7 @@ module.exports = {
     verifyForgotOtp,
     getBikeDetails,
     findOrder,
-    ratingAndReview
+    ratingAndReview,
+    sendMessage,
+    fetchIndividualChat
 };

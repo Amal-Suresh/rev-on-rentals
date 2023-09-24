@@ -3,7 +3,7 @@ const User = require('../models/userModel')
 const nodemailer = require('nodemailer')
 const Admin = require('../models/adminModel')
 const jwt = require('jsonwebtoken')
-
+const Chat =require('../models/chatModel')
 
 
 //send otp to mail
@@ -256,6 +256,95 @@ const adminLogin = async (req, res) => {
     }
 }
 
+const fetchUser = async (req, res) => {
+    try {
+        const userChats = await Chat.aggregate([
+            {
+                $match: {
+                    sender: 'User' // Filter chat messages sent by the admin
+                }
+            },
+            {
+                $group: {
+                    _id: '$user',
+                    latestMessage: { $max: '$createdAt' }, // Find the latest message for each user
+                    text: { $last: '$text' } // Get the text of the latest message
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users', // This should match the name of your User collection in MongoDB
+                    localField: '_id',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    latestMessage: 1,
+                    text: 1, // Include the 'text' field
+                    userDetails: { $arrayElemAt: ['$userDetails', 0] }
+                }
+            }
+        ]);
+
+        res.status(200).send({success:true,message:"data fetched successfully",data:userChats})
+    } catch (error) {
+        console.log(error.message);
+    }
+}
+
+const fetchIndividualChat=async(req,res)=>{
+    try {
+        console.log("reached lkognjnnnnnnnnnnnnnmnnnnnnnnnnnnnnnnnnnn");
+        const messages = await Chat.find({
+            'user': req.query.id // Messages received by or associated with the user
+          })
+          .sort({ createdAt: 1 }); 
+          console.log(messages);
+
+          if(messages){
+            res.status(200).send({success:true,message:"something",data:messages})
+          }
+          
+        
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+}
+
+const replyToUser=async(req,res)=>{
+    try {
+        console.log("reached replay user",req.body);
+        const {id,textToSent}=req.body
+
+
+        const newChat=new Chat({
+            user:id,
+            text:textToSent,
+            createdAt:new Date(),
+            sender:"Admin"
+        })
+
+        await newChat.save()
+
+        const messages = await Chat.find({
+            'user':id // Messages received by or associated with the user
+          })
+          .sort({ createdAt: 1 }); 
+          console.log(messages);
+
+
+          res.status(200).send({success:true,message:"message sented successfully",data:messages})
+
+    } catch (error) {
+        
+    }
+}
+
+
 
 
 module.exports = {
@@ -267,5 +356,8 @@ module.exports = {
     sendMailtoPartner,
     verifyPartner,
     loadVerifiedPartners,
-    adminLogin
+    adminLogin,
+    fetchUser,
+    fetchIndividualChat,
+    replyToUser
 }
