@@ -20,6 +20,7 @@ const partnerAuth =(req,res,next)=>{
 const userAuth = async (req, res, next) => {
     try {
       const tokenWithBearer = req.headers['authorization'];
+      console.log(tokenWithBearer,"ooiii");
       if (!tokenWithBearer || !tokenWithBearer.startsWith('Bearer ')) {
         return res.status(401).json({ message: 'Authorization header missing or invalid', success: false });
       }

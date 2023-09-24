@@ -602,8 +602,13 @@ const sendMessage=async(req,res)=>{
             createdAt:new Date()
         })
         const saveChat=await chat.save()
+        const messages = await Chat.find({
+            'user': req.id // Messages received by or associated with the user
+          })
+          .sort({ createdAt: 1 }); 
+
         if(saveChat){
-            res.status(200).send({success:true,message:"message sented successfully"})
+            res.status(200).send({success:true,message:"message sented successfully",data:messages})
         }else{
             res.status(401).send({success:false,message:"message not sented"})
 
@@ -615,6 +620,28 @@ const sendMessage=async(req,res)=>{
         
     }
 }
+
+const fetchIndividualChat=async(req,res)=>{
+    try {
+        console.log("ooooooooiiiiiiiiiiiiiiiiii");
+        console.log("reached lkognjnnnnnnnnnnnnnmnnnnnnnnnnnnnnnnnnnn",req.id);
+        const messages = await Chat.find({
+            'user': req.id // Messages received by or associated with the user
+          })
+          .sort({ createdAt: 1 }); 
+          console.log(messages);
+
+          if(messages){
+            res.status(200).send({success:true,message:"something",data:messages})
+          }
+          
+        
+    } catch (error) {
+        console.log(error.message);
+        
+    }
+}
+
 
 
 
@@ -639,5 +666,6 @@ module.exports = {
     getBikeDetails,
     findOrder,
     ratingAndReview,
-    sendMessage
+    sendMessage,
+    fetchIndividualChat
 };

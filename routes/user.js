@@ -44,6 +44,8 @@ userRoute.get('/findOrder',userController.findOrder)
 userRoute.post('/ratingAndReview',userController.ratingAndReview)
 userRoute.post('/checkIfUser',userController.checkIfUser)
 userRoute.post('/sendMessage',auth.userAuth,userController.sendMessage)
+userRoute.get('/fetchIndividualChat',auth.userAuth,userController.fetchIndividualChat)
+
 
 
 
