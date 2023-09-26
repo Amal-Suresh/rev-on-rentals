@@ -108,6 +108,7 @@ const verifyOTP = async (req, res) => {
 
 const verifyLogin = async (req, res) => {
     try {
+        console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
         const userData = await User.findOne({ email: req.body.email })
         if (userData) {
             const camparePass = comparePassword(req.body.password, userData.password)
