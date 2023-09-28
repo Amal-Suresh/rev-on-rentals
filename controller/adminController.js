@@ -345,6 +345,30 @@ const replyToUser=async(req,res)=>{
 }
 
 
+const ckeckIdAdmin = async (req, res) => {
+    try {
+        const tokenWithBearer = req.headers['authorization'];
+        const token = tokenWithBearer.split(" ")[1]
+        jwt.verify(token, process.env.JWT_SECRET_KEY, (err, encoded) => {
+            if (err) {
+                return res.status(401).send({ message: "Auth failed", success: false })
+            } else if (encoded.role === 'admin') {
+                let partner = {
+                    token: token,
+                    username: encoded.username
+                }
+                res.status(200).send({ success: true, message: "Auth success", data: partner })
+            }
+        })
+    } catch (error) {
+        console.log(error.message);
+        res.status(401).send({ message: "some thing went wrong", success: false })
+
+
+    }
+}
+
+
 
 
 module.exports = {
@@ -359,5 +383,6 @@ module.exports = {
     adminLogin,
     fetchUser,
     fetchIndividualChat,
-    replyToUser
+    replyToUser,
+    ckeckIdAdmin
 }

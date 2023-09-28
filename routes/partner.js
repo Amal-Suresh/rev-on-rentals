@@ -40,19 +40,4 @@ partnerRoute.delete('/deleteBike',partnerController.deleteBike)
 partnerRoute.get('/fetchBookingBikesRevenu',Auth.partnerAuth,partnerController.fetchBookingBikesRevenu)
 partnerRoute.get('/monthlySalesRatio',Auth.partnerAuth,partnerController.monthlySalesRatio)
 
-
-
-
-
-
-
-
-// partnerRoute.post('/checkIfPartner',partnerController.checkIfPartner)
-
-
-
-
-
-
-
 module.exports=partnerRoute;

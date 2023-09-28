@@ -108,7 +108,6 @@ const verifyOTP = async (req, res) => {
 
 const verifyLogin = async (req, res) => {
     try {
-        console.log("iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
         const userData = await User.findOne({ email: req.body.email })
         if (userData) {
             const camparePass = comparePassword(req.body.password, userData.password)
@@ -331,16 +330,9 @@ const getBikes2 = async (req, res) => {
                     },
                 ],
             });
-
-            console.log(overlappingBookings, "orderderdsss");
-
-
             const bookedBikeIds = overlappingBookings.map(booking => booking.bike);
             query._id = { $nin: bookedBikeIds };
         }
-
-        console.log(query, "jbdskjbvfvkfbvkhds");
-
         const totalItems = await Bike.countDocuments(query);
         const totalPages = Math.ceil(totalItems / limit);
 
@@ -369,17 +361,12 @@ const getBookings = async (req, res) => {
     try {
 
         const rides = await Booking.find({ user: req.id }).populate('bike');
-        console.log(rides, "ppppppppppppppppppppppppppp");
-
         const reviews = await Review.find({ user: req.id }).distinct('booking').exec()
         const objectIdStrings = [];
 
         for (const objectId of reviews) {
             objectIdStrings.push(objectId.toString());
         }
-
-        console.log(reviews,objectIdStrings, "IIIIIIIIIIIIIIIIII");
-
         res.status(200).send({ success: true, message: "data featched successfully", data: rides ,doneReviews:objectIdStrings})
     } catch (error) {
         console.log(error.message);
@@ -389,7 +376,6 @@ const getBookings = async (req, res) => {
 
 const cancelRide = async (req, res) => {
     try {
-        console.log(req.body);
         const ride = await Booking.findOne({ _id: req.body.order })
         ride.status = "cancelled"
         await ride.save()
@@ -435,8 +421,6 @@ function setOtpForForgotPass(email, password, otp) {
 
 const forgotPassword = async (req, res) => {
     try {
-        console.log("reached forget password");
-        console.log(req.body);
         const { email, password } = req.body
         const userData = await User.findOne({ email: email })
         console.log(userData);
@@ -460,8 +444,6 @@ const forgotPassword = async (req, res) => {
 
 const forgotPasswordResendOtp = async (req, res) => {
     try {
-        console.log("reached resent");
-        console.log(req.body.email);
         const email = req.body.email
         if (UserEmailOTPForgetPass.has(email)) {
             const newOTP = Math.floor(Math.random() * 9000) + 1000;
@@ -507,14 +489,13 @@ const verifyForgotOtp = async (req, res) => {
 
 const getBikeDetails = async (req, res) => {
     try {
-        console.log("reached get bike data");
         const bikeData = await Bike.findOne({ _id: req.query.id }).populate('partnerId')
         const points = bikeData.partnerId.locations
-        console.log(points);
+        const fetchReviews=await Review.find({bike :req.query.id}).populate('user')
         if (!bikeData) {
             return res.status(201).json({ success: false, message: "bike not found" })
         } else {
-            return res.status(200).json({ success: true, message: "bike got successfully", data: bikeData, locations: points })
+            return res.status(200).json({ success: true, message: "bike got successfully", data: bikeData, locations: points , review:fetchReviews })
         }
     } catch (error) {
         console.log(error.message);
@@ -524,9 +505,7 @@ const getBikeDetails = async (req, res) => {
 
 const findOrder = async (req, res) => {
     try {
-        console.log("reached find orders");
         const ordeData = await Booking.findOne({ _id: req.query.id }).populate('user').populate('bike')
-        console.log(ordeData);
         res.status(200).send({ success: true, message: "data featched", data: ordeData })
     } catch (error) {
         console.log(error.message);
@@ -537,8 +516,6 @@ const findOrder = async (req, res) => {
 
 const ratingAndReview = async (req, res) => {
     try {
-
-        console.log("reached review and rateing");
         const { userId, bikeId, bookingId, stars, review } = req.body.newData
         let newReview = new Review({
             user: userId,
@@ -550,9 +527,6 @@ const ratingAndReview = async (req, res) => {
         })
         await newReview.save()
         res.status(200).send({ success: true, message: "review successfully added" })
-
-
-        console.log("ooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
     } catch (error) {
         console.log(error.message);
@@ -592,7 +566,6 @@ const checkIfUser = async (req, res) => {
 
 const sendMessage=async(req,res)=>{
     try {
-        console.log("reached iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii");
         const chat=new Chat({
             user:req.id,
             sender:"User",
@@ -621,8 +594,6 @@ const sendMessage=async(req,res)=>{
 
 const fetchIndividualChat=async(req,res)=>{
     try {
-        console.log("ooooooooiiiiiiiiiiiiiiiiii");
-        console.log("reached lkognjnnnnnnnnnnnnnmnnnnnnnnnnnnnnnnnnnn",req.id);
         const messages = await Chat.find({
             'user': req.id // Messages received by or associated with the user
           })

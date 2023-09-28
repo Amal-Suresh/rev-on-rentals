@@ -14,6 +14,8 @@ adminRoute.post('/login',adminContoller.adminLogin)
 adminRoute.get('/fetchChat',adminContoller.fetchUser)
 adminRoute.get('/fetchIndividualChat',adminContoller.fetchIndividualChat)
 adminRoute.post('/replyToUser',adminContoller.replyToUser)
+adminRoute.post('/checkIfAdmin',adminContoller.ckeckIdAdmin)
+
 
 
 

@@ -16,7 +16,8 @@ app.use(express.urlencoded({extended:false}))
 app.use(express.json())
 
 app.use(cors({
-  origin: 'https://rev-on-rentals.vercel.app',  
+  origin: 'http://localhost:3000',
+  // origin: 'https://rev-on-rentals.vercel.app',  
   methods: ['GET', 'POST','PUT','PATCH','DELETE'], // Allow specific HTTP methods
   credentials: true, // Allow cookies and authentication headers
 }));
