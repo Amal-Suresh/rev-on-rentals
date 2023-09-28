@@ -5,6 +5,7 @@ const cloudinary = require('../utils/cloudinery')
 const jwt = require('jsonwebtoken')
 const Bike = require('../models/bikeModel')
 const nodemailer = require('nodemailer')
+const mongoose = require('mongoose')
 
 
 const hashPassword = (password) => {
@@ -369,7 +370,7 @@ const checkIfPartner = async (req, res) => {
 
 const deleteBike = async (req, res) => {
     try {
-        const id  = req.query.id
+        const id = req.query.id
         const currentDate = new Date()
         const checkBike = await Booking.find({
             bike: id,
@@ -381,13 +382,266 @@ const deleteBike = async (req, res) => {
             const deleteBike = await Bike.findOneAndDelete({ _id: id })
             if (deleteBike) {
                 res.status(200).send({ success: true, message: "bike deleted successfully" })
-            }else{
+            } else {
                 res.status(203).send({ success: false, message: "bike deletion failed" })
             }
         }
     } catch (error) {
         console.log(error.message);
         res.status(500).send({ success: false, message: "something went wrong" })
+    }
+}
+
+const fetchBookingBikesRevenu = async (req, res) => {
+    try {
+        const bikeHided = await Bike.countDocuments({
+            status: false,
+            partnerId: req.id
+        });
+        const allBikesCount = await Bike.countDocuments({
+            partnerId: req.id
+        });
+        const ObjectId = mongoose.Types.ObjectId;
+        const partnerId = new ObjectId(req.id);
+        const result = await Booking.aggregate([
+            {
+                $match: {
+                    partner: partnerId,
+                    status: "completed"
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    count: { $sum: 1 },
+                    grandTotal: { $sum: "$grandTotal" }
+                }
+            }
+        ]);
+
+        let totalBookingCount = result[0].count
+        let totalRevenu = result[0].grandTotal
+
+        const currentDate = new Date();
+        const currentDayOfWeek = currentDate.getDay();
+
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDayOfWeek);
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+        // const weekly = await Booking.aggregate([
+        //     {
+        //         $match: {
+        //             partner: partnerId,
+        //             // status: "completed",
+        //             date: {
+        //                 $gte: startOfWeek,
+        //                 $lte: endOfWeek,
+        //             },
+        //         },
+        //     },
+        //     {
+        //         $group: {
+        //             _id: { $dayOfWeek: "$date" },
+        //             count: { $sum: 1 },
+        //         },
+        //     },
+        //     {
+        //         $sort: {
+        //             _id: 1, // Sort by day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday).
+        //         },
+        //     },
+        // ])
+
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        const weekly = await Booking.aggregate([
+            {
+                $match: {
+                    partner: partnerId,
+                    date: {
+                        $gte: startOfWeek,
+                        $lte: endOfWeek,
+                    },
+                },
+            },
+            {
+                $group: {
+                    _id: {
+                        dayOfWeek: { $dayOfWeek: "$date" },
+                    },
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $sort: {
+                    "_id.dayOfWeek": 1, // Sort by day of the week (1 = Sunday, 2 = Monday, ..., 7 = Saturday).
+                },
+            },
+            {
+                $project: {
+                    _id: 0, // Exclude the default MongoDB _id field.
+                    dayOfWeek: "$_id.dayOfWeek",
+                    count: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: null,
+                    daysOfWeek: {
+                        $push: {
+                            dayOfWeek: "$dayOfWeek",
+                            count: "$count",
+                        },
+                    },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    daysOfWeek: 1,
+                },
+            },
+            {
+                $unwind: "$daysOfWeek",
+            },
+            {
+                $project: {
+                    _id: 0,
+                    day: "$daysOfWeek.dayOfWeek",
+                    count: {
+                        $cond: {
+                            if: { $eq: ["$daysOfWeek.count", null] },
+                            then: 0,
+                            else: "$daysOfWeek.count",
+                        },
+                    },
+                },
+            },
+            {
+                $sort: {
+                    day: 1,
+                },
+            },
+            {
+                $project: {
+                    dayName: {
+                        $switch: {
+                            branches: [
+                                { case: { $eq: ["$day", 1] }, then: "Sunday" },
+                                { case: { $eq: ["$day", 2] }, then: "Monday" },
+                                { case: { $eq: ["$day", 3] }, then: "Tuesday" },
+                                { case: { $eq: ["$day", 4] }, then: "Wednesday" },
+                                { case: { $eq: ["$day", 5] }, then: "Thursday" },
+                                { case: { $eq: ["$day", 6] }, then: "Friday" },
+                                { case: { $eq: ["$day", 7] }, then: "Saturday" },
+                            ],
+                            default: "Unknown", // Default value if the day of the week is not recognized.
+                        },
+                    },
+                    count: 1,
+                },
+            },
+            {
+                $group: {
+                    _id: "$dayName",
+                    count: { $first: "$count" },
+                },
+            },
+            {
+                $project: {
+                    _id: 0,
+                    dayName: "$_id",
+                    count: 1,
+                },
+            },
+        ]);
+
+        // Create an array for missing days with count 0
+        const missingDays = daysOfWeek.filter(day => !weekly.some(item => item.dayName === day)).map(day => ({ dayName: day, count: 0 }));
+
+        // Combine the missing days with the actual results
+        const combinedResults = [...weekly, ...missingDays];
+
+        const customOrder = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+        combinedResults.sort((a, b) => customOrder.indexOf(a.dayName) - customOrder.indexOf(b.dayName));
+
+        const basicDetailsForDash = {
+            totalRevenu,
+            totalBookingCount,
+            allBikesCount,
+            bikeHided
+        }
+        res.status(200).json({ success: true, message: "data fetched for dashboard", data: basicDetailsForDash, currentWeek: combinedResults })
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ success: false, message: "something went wrong" })
+
+
+    }
+}
+
+const monthlySalesRatio = async (req, res) => {
+    try {
+        const ObjectId = mongoose.Types.ObjectId;
+        const partnerId = new ObjectId(req.id);
+        const currentDate = new Date();
+        const currentYear = currentDate.getFullYear();
+        const currentMonth = currentDate.getMonth() + 1;
+
+        const cancelledBookings = await Booking.aggregate([
+            {
+                $match: {
+                    $expr: {
+                        $and: [
+                            { $eq: [{ $year: "$date" }, currentYear] },
+                            { $eq: [{ $month: "$date" }, currentMonth] },
+                            { $eq: ["$status", "cancelled"] },
+                            { $eq: ["$partner", partnerId] },
+                        ],
+                    },
+                },
+            },
+            {
+                $count: "cancelledCount",
+            },
+        ])
+
+        const completedBookings = await Booking.aggregate([
+            {
+                $match: {
+                    $expr: {
+                        $and: [
+                            { $eq: [{ $year: "$date" }, currentYear] },
+                            { $eq: [{ $month: "$date" }, currentMonth] },
+                            { $eq: ["$status", "completed"] },
+                            { $eq: ["$partner", partnerId] },
+                        ],
+                    },
+                },
+            },
+            {
+                $count: "completedCount",
+            },
+        ])
+
+        const count = {
+            cancelled: cancelledBookings[0].cancelledCount,
+            completed: completedBookings[0].completedCount
+        }
+
+        res.status(200).send({ success: true, message: "data fetched for monthly cancel & completed ratio", data: count })
+
+
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ success: false, message: "something went wrong" })
+
+
     }
 }
 
@@ -408,5 +662,7 @@ module.exports = {
     findBookings,
     resendOtp,
     checkIfPartner,
-    deleteBike
+    deleteBike,
+    fetchBookingBikesRevenu,
+    monthlySalesRatio
 }

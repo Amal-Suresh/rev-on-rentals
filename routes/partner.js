@@ -37,6 +37,10 @@ partnerRoute.post('/resendOtp',partnerController.resendOtp)
 partnerRoute.post('/addBikes',upload.array('image',3),Auth.partnerAuth,partnerController.addBikes)
 partnerRoute.post('/checkIfPartner',partnerController.checkIfPartner)
 partnerRoute.delete('/deleteBike',partnerController.deleteBike)
+partnerRoute.get('/fetchBookingBikesRevenu',Auth.partnerAuth,partnerController.fetchBookingBikesRevenu)
+partnerRoute.get('/monthlySalesRatio',Auth.partnerAuth,partnerController.monthlySalesRatio)
+
+
 
 
 

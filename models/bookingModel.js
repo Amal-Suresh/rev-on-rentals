@@ -69,7 +69,7 @@ const bookingSchema =mongoose.Schema({
        
     },
     grandTotal:{
-        type:String,
+        type:Number,
     },
     totalAmount:{
         type:Number,
