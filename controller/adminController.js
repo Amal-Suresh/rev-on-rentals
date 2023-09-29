@@ -189,10 +189,11 @@ const sendMailtoPartner = async (req, res) => {
         const partnerData = await Partner.findOne({email:req.query.email})
         partnerData.isVerifed="mailSented"
         await partnerData.save()
-        const partnerReqs = await Partner.find({isVerified: { $in: ["notVerified", "mailSented"]} })
+        const partnerReqs = await Partner.find({ isVerifed: { $in: ["notVerified", "mailSented"] }})
         res.status(200).send({ success: true, message: "message sented",data:partnerReqs })
     } catch (error) {
-        res.status(401).send({ success: false, message: "Something went wrong" })
+        console.log(error.message);
+        res.status(500).send({ success: false, message: "Something went wrong" })
 
     }
 }
