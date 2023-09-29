@@ -19,8 +19,8 @@ app.use(express.urlencoded({extended:false}))
 app.use(express.json())
 
 app.use(cors({
-  origin: 'http://localhost:3000',
-  // origin: 'https://rev-on-rentals.vercel.app',  
+  // origin: 'http://localhost:3000',
+   origin: 'https://rev-on-rentals.vercel.app',  
   methods: ['GET', 'POST','PUT','PATCH','DELETE'], // Allow specific HTTP methods
   credentials: true, // Allow cookies and authentication headers
 }));
@@ -33,7 +33,8 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: 'http://localhost:3000',// Remove the trailing slash
+   origin: 'https://rev-on-rentals.vercel.app',  
+    // origin: 'http://localhost:3000',
     methods: ["GET", "POST", "PATCH"],
     credentials: true
   }
