@@ -15,6 +15,9 @@ adminRoute.get('/fetchChat',adminContoller.fetchUser)
 adminRoute.get('/fetchIndividualChat',adminContoller.fetchIndividualChat)
 adminRoute.post('/replyToUser',adminContoller.replyToUser)
 adminRoute.post('/checkIfAdmin',adminContoller.ckeckIdAdmin)
+adminRoute.get('/fetchBookingBikesRevenu',adminContoller.fetchBookingBikesRevenu)
+adminRoute.get('/monthlySalesRatio',adminContoller.monthlySalesRatio)
+
 
 
 
