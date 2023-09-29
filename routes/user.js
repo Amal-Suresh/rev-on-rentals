@@ -46,6 +46,8 @@ userRoute.post('/checkIfUser',userController.checkIfUser)
 userRoute.post('/sendMessage',auth.userAuth,userController.sendMessage)
 userRoute.get('/fetchIndividualChat',auth.userAuth,userController.fetchIndividualChat)
 userRoute.get('/ourFleet',userController.findFleet)
+userRoute.get('/getTariff',userController.getTariff)
+
 
 
 

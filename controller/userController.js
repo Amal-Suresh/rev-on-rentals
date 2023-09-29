@@ -628,6 +628,21 @@ const findFleet=async(req,res)=>{
     }
 }
 
+const getTariff=async(req,res)=>{
+    try {
+    
+        const limit = 8;
+        const bikes = await Bike.find().limit(limit);
+        res.status(200).send({ message: "data fetched successfully", success: true, data: bikes })
+
+        
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: "something went wrong"})
+
+        
+    }
+}
 
 
 
@@ -654,5 +669,6 @@ module.exports = {
     ratingAndReview,
     sendMessage,
     fetchIndividualChat,
-    findFleet
+    findFleet,
+    getTariff
 };
