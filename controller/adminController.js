@@ -260,16 +260,13 @@ const adminLogin = async (req, res) => {
 const fetchUser = async (req, res) => {
     try {
         const userChats = await Chat.aggregate([
-            {
-                $match: {
-                    sender: 'User' // Filter chat messages sent by the admin
-                }
-            },
+          
             {
                 $group: {
                     _id: '$user',
                     latestMessage: { $max: '$createdAt' }, // Find the latest message for each user
-                    text: { $last: '$text' } // Get the text of the latest message
+                    text: { $last: '$text' },
+                    time: { $last: '$time' } // Get the text of the latest message
                 }
             },
             {
@@ -284,7 +281,8 @@ const fetchUser = async (req, res) => {
                 $project: {
                     _id: 1,
                     latestMessage: 1,
-                    text: 1, // Include the 'text' field
+                    text: 1, 
+                    time:1,
                     userDetails: { $arrayElemAt: ['$userDetails', 0] }
                 }
             }

@@ -43,7 +43,7 @@ const io = new Server(server, {
 io.on('connection', (socket) => {
   socket.on('send_message', async (data) => {
     try {
-      // Save the message to the database
+
       const time = new Date().getHours() + ':' + new Date().getMinutes();
       const chatData = new Chat({
         user:data.user,
@@ -51,7 +51,7 @@ io.on('connection', (socket) => {
         text:data.text,
         createdAt:new Date(),
         time
-      });
+      }); 
       await chatData.save();
       // Emit the message to all connected users
       io.emit('receive_message', chatData);
