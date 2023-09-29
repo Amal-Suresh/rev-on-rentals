@@ -12,6 +12,9 @@ const chatSchema=mongoose.Schema({
     text:{
         type:String,
     },
+    time:{
+        type:String,
+    },
     createdAt:{
         type:Date
     }

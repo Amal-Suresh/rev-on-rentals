@@ -549,7 +549,8 @@ const checkIfUser = async (req, res) => {
                     const userData = await User.findOne({ _id: encoded.id });
                     const user={
                         name:userData.fname +" "+ userData.lname,
-                        token
+                        token,
+                        id: encoded.id
                     }
                     res.status(200).send({ message: "Auth successful", success: true ,data:user });
                 } catch (error) {
