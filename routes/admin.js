@@ -1,6 +1,7 @@
 const express =require('express');
 const adminRoute=express()
 const adminContoller = require("../controller/adminController")
+const couponContoller = require("../controller/couponController")
 
 adminRoute.get('/partnerRequests',adminContoller.loadPartnerRequests)
 adminRoute.put('/changeStatus',adminContoller.changePartnerStatus)
@@ -17,6 +18,11 @@ adminRoute.post('/replyToUser',adminContoller.replyToUser)
 adminRoute.post('/checkIfAdmin',adminContoller.ckeckIdAdmin)
 adminRoute.get('/fetchBookingBikesRevenu',adminContoller.fetchBookingBikesRevenu)
 adminRoute.get('/monthlySalesRatio',adminContoller.monthlySalesRatio)
+
+adminRoute.post('/addCoupon',couponContoller.addCoupon)
+
+
+
 
 
 
