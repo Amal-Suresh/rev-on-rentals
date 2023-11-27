@@ -26,14 +26,18 @@ const couponSchema = new mongoose.Schema({
     },
     expireDate:{
         type:Date,
-        default:false
+        required    :false
     },
     status:{
         type:Boolean,
-        default:true
+        default:false
     },
     limit:{
         type:Number,
+        required:true
+    },
+    image:{
+        type:String,
         required:true
     }
 })

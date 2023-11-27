@@ -35,7 +35,7 @@ const io = new Server(server, {
   cors: {
   //  origin: 'https://rev-on-rentals.vercel.app',  
        origin: 'http://localhost:3000',
-    methods: ["GET", "POST", "PATCH"],
+    methods: ["GET", "POST", "PATCH","DELETE"],
     credentials: true
   }
 });

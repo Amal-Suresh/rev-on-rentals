@@ -2,6 +2,20 @@ const express =require('express');
 const adminRoute=express()
 const adminContoller = require("../controller/adminController")
 const couponContoller = require("../controller/couponController")
+const multer = require('multer')
+const path = require('path');
+
+const storage = multer.diskStorage({
+    filename: function(req, file, cb) {
+      const name = Date.now()+"-"+file.originalname;
+      cb(null, name, function(error, success) {
+        if (error) {
+          console.log(error);
+        }
+      });
+    }
+  });
+  const upload = multer({ storage: storage });
 
 adminRoute.get('/partnerRequests',adminContoller.loadPartnerRequests)
 adminRoute.put('/changeStatus',adminContoller.changePartnerStatus)
@@ -19,7 +33,12 @@ adminRoute.post('/checkIfAdmin',adminContoller.ckeckIdAdmin)
 adminRoute.get('/fetchBookingBikesRevenu',adminContoller.fetchBookingBikesRevenu)
 adminRoute.get('/monthlySalesRatio',adminContoller.monthlySalesRatio)
 
-adminRoute.post('/addCoupon',couponContoller.addCoupon)
+adminRoute.post('/addCoupon',upload.single('image'),couponContoller.addCoupon)
+adminRoute.get('/deleteCoupon',couponContoller.deleteCoupon)
+adminRoute.get('/changeCouponStatus',couponContoller.changeStatus)
+adminRoute.get('/coupons',couponContoller.fetchCoupon)
+
+
 
 
 

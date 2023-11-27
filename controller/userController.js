@@ -8,6 +8,7 @@ const Partner = require('../models/partnerModel')
 const cloudinary = require('../utils/cloudinery')
 const Review = require('../models/reviewRatingModel')
 const Chat = require('../models/chatModel')
+const Coupon=require('../models/couponModel')
 
 const hashPassword = (password) => {
     const salt = bcrypt.genSaltSync(10);
@@ -173,18 +174,11 @@ const editUserProfile = async (req, res) => {
         userDetails.fname = fname
         userDetails.lname = lname
         userDetails.mobile = mobile
-
         await userDetails.save()
-
-        console.log(userDetails, "updated details");
         res.status(200).send({ success: true, message: "profile updated successfully", data: userDetails })
-
     } catch (error) {
         res.status(401).send({ success: false, message: "something went wrong" })
-
     }
-
-
 }
 
 const uploadToCloudinary = async (fileBuffer) => {
@@ -310,7 +304,7 @@ const getBikes2 = async (req, res) => {
             const partnersInCity = await Partner.find({ city });
 
             const partnerIds = partnersInCity.map(partner => partner._id);
-            console.log(partnerIds, "idddds");
+          
 
             const overlappingBookings = await Booking.find({
                 partner: { $in: partnerIds },
@@ -347,7 +341,7 @@ const getBikes2 = async (req, res) => {
             totalPages,
             page,
         };
-        console.log(bikes);
+       
 
         res.status(200).send({ message: "data fetched successfully", success: true, data: datas });
 
@@ -361,7 +355,7 @@ const getBikes2 = async (req, res) => {
 const getBookings = async (req, res) => {
     try {
 
-        const rides = await Booking.find({ user: req.id }).populate('bike');
+        const rides = await Booking.find({ user: req.id }).populate('bike').sort({date:-1});
         const reviews = await Review.find({ user: req.id }).distinct('booking').exec()
         const objectIdStrings = [];
 
@@ -380,7 +374,7 @@ const cancelRide = async (req, res) => {
         const ride = await Booking.findOne({ _id: req.body.order })
         ride.status = "cancelled"
         await ride.save()
-        console.log(ride);
+       
         res.status(200).send({ success: true, message: "ride cancelled" })
     } catch (error) {
         console.log(error.message);
@@ -424,7 +418,7 @@ const forgotPassword = async (req, res) => {
     try {
         const { email, password } = req.body
         const userData = await User.findOne({ email: email })
-        console.log(userData);
+       
 
         if (!userData) {
             return res.status(200).json({ success: false, message: "user does not exist" })
@@ -449,10 +443,10 @@ const forgotPasswordResendOtp = async (req, res) => {
         if (UserEmailOTPForgetPass.has(email)) {
             const newOTP = Math.floor(Math.random() * 9000) + 1000;
             const currentData = UserEmailOTPForgetPass.get(email);
-            console.log(currentData);
+         
             currentData.otp = newOTP;
             currentData.date = new Date()
-            console.log(currentData);
+           
 
             UserEmailOTPForgetPass.set(email, currentData);
             sMail(email, newOTP)
@@ -645,6 +639,19 @@ const getTariff=async(req,res)=>{
     }
 }
 
+const getCoupons=async(req,res)=>{
+    try {
+        const limit = 9;
+        const coupon = await Coupon.find({status:true}).limit(limit);
+        res.status(200).send({ message: "data fetched successfully", success: true, data: coupon })
+    } catch (error) {
+        console.log(error.message);
+        res.status(500).send({ message: "something went wrong"})    
+    }
+}
+
+
+
 
 
 
@@ -671,5 +678,6 @@ module.exports = {
     sendMessage,
     fetchIndividualChat,
     findFleet,
-    getTariff
+    getTariff,
+    getCoupons
 };
