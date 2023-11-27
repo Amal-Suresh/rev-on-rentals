@@ -5,7 +5,6 @@ const Booking=require('../models/bookingModel')
 
 const order = async(req,res)=>{
     try {
-        console.log("reached order",req.body);
         const instance=new Razorpay({
             key_id:process.env.KEY_ID,
             key_secret:process.env.KEY_SECRET
@@ -21,7 +20,6 @@ const order = async(req,res)=>{
                 console.log(error.message);
                 return res.status(500).json({success:false, message:"Something went wrong!"})
             }else{
-                console.log(order,"order");
                 res.status(200).json({success:true,message:"success",data:order})
             }
         })
@@ -39,7 +37,6 @@ const order = async(req,res)=>{
 
 const verify =async(req,res)=>{
     try {
-        console.log("reached verify" , req.body);
 
         const {razorpay_order_id,
                razorpay_payment_id,
@@ -67,7 +64,6 @@ const verify =async(req,res)=>{
 
                
                if(razorpay_signature===expectedSign){
-                console.log("successs");
                 const booking = new Booking({
                     user:req.id,
                     partner:partnerId,

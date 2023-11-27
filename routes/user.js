@@ -19,8 +19,6 @@ const storage = multer.diskStorage({
   });
   const upload = multer({ storage: storage });
 
-
-
 userRoute.post('/verifyOtp',userController.verifyOTP)
 userRoute.post('/login',userController.verifyLogin)
 userRoute.get('/getBikes',userController.getBikes2)
@@ -47,18 +45,7 @@ userRoute.post('/sendMessage',auth.userAuth,userController.sendMessage)
 userRoute.get('/fetchIndividualChat',auth.userAuth,userController.fetchIndividualChat)
 userRoute.get('/ourFleet',userController.findFleet)
 userRoute.get('/getTariff',userController.getTariff)
-
-
-
-
-
-
-
-
-
-
-
-
+userRoute.get('/getCoupons',userController.getCoupons)
 
 
 

@@ -544,6 +544,8 @@ const monthlySalesRatio = async (req, res) => {
                 $count: "cancelledCount",
             },
         ])
+
+       
         const completedBookings = await Booking.aggregate([
             {
                 $match: {
@@ -560,6 +562,7 @@ const monthlySalesRatio = async (req, res) => {
                 $count: "completedCount",
             },
         ])
+
         const count = {
             cancelled: cancelledBookings[0].cancelledCount,
             completed: completedBookings[0].completedCount
