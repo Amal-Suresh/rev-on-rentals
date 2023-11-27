@@ -304,7 +304,7 @@ const getBikes2 = async (req, res) => {
             const partnersInCity = await Partner.find({ city });
 
             const partnerIds = partnersInCity.map(partner => partner._id);
-            console.log(partnerIds, "idddds");
+          
 
             const overlappingBookings = await Booking.find({
                 partner: { $in: partnerIds },
@@ -341,7 +341,7 @@ const getBikes2 = async (req, res) => {
             totalPages,
             page,
         };
-        console.log(bikes);
+       
 
         res.status(200).send({ message: "data fetched successfully", success: true, data: datas });
 
@@ -374,7 +374,7 @@ const cancelRide = async (req, res) => {
         const ride = await Booking.findOne({ _id: req.body.order })
         ride.status = "cancelled"
         await ride.save()
-        console.log(ride);
+       
         res.status(200).send({ success: true, message: "ride cancelled" })
     } catch (error) {
         console.log(error.message);
@@ -418,7 +418,7 @@ const forgotPassword = async (req, res) => {
     try {
         const { email, password } = req.body
         const userData = await User.findOne({ email: email })
-        console.log(userData);
+       
 
         if (!userData) {
             return res.status(200).json({ success: false, message: "user does not exist" })
@@ -443,10 +443,10 @@ const forgotPasswordResendOtp = async (req, res) => {
         if (UserEmailOTPForgetPass.has(email)) {
             const newOTP = Math.floor(Math.random() * 9000) + 1000;
             const currentData = UserEmailOTPForgetPass.get(email);
-            console.log(currentData);
+         
             currentData.otp = newOTP;
             currentData.date = new Date()
-            console.log(currentData);
+           
 
             UserEmailOTPForgetPass.set(email, currentData);
             sMail(email, newOTP)

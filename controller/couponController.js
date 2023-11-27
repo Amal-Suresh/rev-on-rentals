@@ -64,8 +64,8 @@ const deleteCoupon = async (req, res) => {
 }
 const applycoupon = async (req, res) => {
     try {
-        let code = req.body.code;
-        let amount = req.body.amount;
+        let code = req.body.coupon;
+        let amount = req.body.grandTotal;
         let userId = req.id
         let userexist = await Coupon.findOne({
             couponCode: code,

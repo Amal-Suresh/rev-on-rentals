@@ -1,6 +1,7 @@
 const Razorpay =require('razorpay')
 const crypto =require('crypto');
 const Booking=require('../models/bookingModel')
+const Coupon =require('../models/couponModel')
 
 
 const order = async(req,res)=>{
@@ -52,6 +53,8 @@ const verify =async(req,res)=>{
                helmet,
                rent,
                grandTotal,
+               discount,
+               coupon,
                total,
                partnerId
                 }=req.body
@@ -79,13 +82,16 @@ const verify =async(req,res)=>{
                     paymentStatus:"sucesss",
                     totalAmount:total,
                     grandTotal,
-                    discountAmount:0,
+                    discountAmount:discount,
                     helmet,
                     rent,
                     totalAmount:total,
                     date:new Date()
                 })
                const newBooking= await booking.save()
+               if(coupon){
+                const addCoupon=await Coupon.updateOne({ couponCode: coupon },{ $push: { whoUsed: req.id } })
+               }
 
                 let id =newBooking._id
 

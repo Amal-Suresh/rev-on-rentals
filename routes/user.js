@@ -4,6 +4,7 @@ const userController = require('../controller/userController')
 const auth=require('../middleware/Auth')
 const bookingContoller = require('../controller/bookingContoller')
 const paymentContoller=require('../controller/paymentContoller')
+const couponController=require('../controller/couponController')
 const multer = require('multer')
 const path = require('path');
 
@@ -46,6 +47,8 @@ userRoute.get('/fetchIndividualChat',auth.userAuth,userController.fetchIndividua
 userRoute.get('/ourFleet',userController.findFleet)
 userRoute.get('/getTariff',userController.getTariff)
 userRoute.get('/getCoupons',userController.getCoupons)
+userRoute.post('/applyCoupon',couponController.applycoupon)
+
 
 
 
