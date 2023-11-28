@@ -96,7 +96,7 @@ const sendMail = ((email) => {
               <li>Update your profile.</li>
               <li>Click the link below to log in to the partner dashboard.</li>
             </ol>
-            <a href="http://localhost:3000/partner/login" class="btn">Log in to Partner Dashboard</a>
+            <a href="https://rev-on-rentals.vercel.app/partner/login" class="btn">Log in to Partner Dashboard</a>
           </div>
         </body>
         </html>
